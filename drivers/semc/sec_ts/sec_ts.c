@@ -1118,9 +1118,9 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 						input_err(true, &ts->client->dev, "%s: failed get power status\n", __func__);
 
 					if (!status.display_power || ts->lowpower_mode) {
-						input_report_key(ts->input_dev, KEY_POWER, 1);
+						input_report_key(ts->input_dev, KEY_WAKEUP, 1);
 						input_sync(ts->input_dev);
-						input_report_key(ts->input_dev, KEY_POWER, 0);
+						input_report_key(ts->input_dev, KEY_WAKEUP, 0);
 						input_sync(ts->input_dev);
 						break;
 					}
@@ -1801,7 +1801,7 @@ static void sec_ts_set_input_prop(struct sec_ts_data *ts, struct input_dev *dev,
 	set_bit(KEY_HOMEPAGE, dev->keybit);
 
 	input_set_capability(dev, EV_SW, SW_GLOVE);
-	input_set_capability(dev, EV_KEY, KEY_POWER);
+	input_set_capability(dev, EV_KEY, KEY_WAKEUP);
 
 	input_set_abs_params(dev, ABS_MT_POSITION_X, 0, ts->plat_data->max_x, 0, 0);
 	input_set_abs_params(dev, ABS_MT_POSITION_Y, 0, ts->plat_data->max_y, 0, 0);
