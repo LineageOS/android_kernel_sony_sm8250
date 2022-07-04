@@ -1,0 +1,12 @@
+EXTRA_CFLAGS += -I$(ANDROID_BUILD_TOP)/vendor/semc/hardware/camera-kernel-module/include/
+ccflags-y += -Itechpack/camera/include/uapi
+ccflags-y += -Itechpack/camera/include
+ccflags-y += -Itechpack/camera/drivers/cam_utils
+ccflags-y += -Itechpack/camera/drivers/cam_cpas/include
+ccflags-y += -Itechpack/camera/drivers/cam_sensor_module/cam_cci
+ccflags-y += -Itechpack/camera/drivers/cam_sensor_module/cam_sensor_io
+ccflags-y += -Itechpack/camera/drivers/cam_sensor_module/cam_sensor_utils
+ccflags-y += -Itechpack/camera/drivers/cam_smmu
+ccflags-y += -Itechpack/camera/drivers/cam_req_mgr
+ccflags-y += -DCONFIG_SPECTRA_CAMERA=1
+obj-m += sony_camera.o

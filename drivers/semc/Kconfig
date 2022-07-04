@@ -1,0 +1,5 @@
+menu "SOMC settings"
+
+source "drivers/semc/pn553/Kconfig"
+
+endmenu
