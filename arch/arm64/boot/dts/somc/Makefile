@@ -1,0 +1,36 @@
+ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+
+dtbo-y += \
+    $(CONFIG_SOMC_VARIANT)-overlay.dtbo
+
+$(CONFIG_SOMC_VARIANT)-overlay.dtbo-base := \
+    ../qcom/kona.dtb ../qcom/kona-v2.dtb ../qcom/kona-v2.1.dtb
+
+else
+dtb-$(CONFIG_MACH_SONY_PDX203) += \
+	kona-edo-pdx203_generic.dtb \
+	kona-v2-edo-pdx203_generic.dtb \
+	kona-v2.1-edo-pdx203_generic.dtb
+dtb-$(CONFIG_MACH_SONY_PDX204) += \
+	kona-edo-pdx204.dtb \
+	kona-v2-edo-pdx204.dtb \
+	kona-v2.1-edo-pdx204.dtb
+dtb-$(CONFIG_MACH_SONY_PDX206) += \
+	kona-edo-pdx206_generic.dtb \
+	kona-v2-edo-pdx206_generic.dtb \
+	kona-v2.1-edo-pdx206_generic.dtb
+endif
+
+ifeq ($(CONFIG_ARM64),y)
+always		:= $(dtb-y)
+subdir-y	:= $(dts-dirs)
+else
+targets += dtbs
+targets += $(addprefix ../, $(dtb-y))
+
+$(obj)/../%.dtb: $(src)/%.dts FORCE
+	$(call if_changed_dep,dtc)
+
+dtbs: $(addprefix $(obj)/../,$(dtb-y))
+endif
+clean-files	:= *.dtb *.dtbo

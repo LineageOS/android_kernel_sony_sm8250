@@ -1,0 +1,61 @@
+/* arch/arm64/boot/dts/somc/somc-edo-nfc_81t.dtsi
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+&qupv3_se1_i2c {
+	nfc@28 {
+		compatible = "nxp,pn553";
+		reg = <0x28>;
+		interrupt-parent = <&tlmm>;
+		interrupts = <111 0x1>;
+		nxp,irq_gpio = <&tlmm 111 0x00>;
+		nxp,dwld_en = <&tlmm 110 0x00>;
+		nxp,ven = <&tlmm 6 0x01>;
+		nxp,ese-pwr = <&tlmm 8 0x00>;
+	};
+};
+
+&soc {
+	nfc,pm-ops {
+		compatible = "sony,pn553-pm-ops";
+	};
+};
+
+/* SPI: QUP0 */
+&qupv3_se0_spi {
+	compatible = "qcom,spi-kona-cloned";
+	pinctrl-0 = <&sm_gpio_28 &sm_gpio_29 &sm_gpio_30>;
+	pinctrl-1 = <&sm_gpio_28_sleep &sm_gpio_29 &sm_gpio_30>;
+	nxp,ese-pwr = <&tlmm 8 0x00>;
+	nxp,ese-cs = <&tlmm 31 0x00>;
+	status = "okay";
+
+	dev@0 {
+		compatible = "nxp,p61";
+		reg = <0>;
+		spi-max-frequency = <30000000>;
+	};
+};
+
+&tlmm {
+	sm_gpio_28_sleep: sm_gpio_28_sleep {
+		mux {
+			pins = "gpio28";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio28";
+			drive-strength = <2>;
+			output-low;
+		};
+	};
+};

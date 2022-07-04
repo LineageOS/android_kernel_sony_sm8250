@@ -1,0 +1,10 @@
+#include "kona-edo-pdx206_j-overlay.dts"
+
+/* JIML-228274 Change PD current to 1.5A (OCP 2.0A) */
+&pm8150b_pdphy {
+	somc,default-source-cap = <0x36019096>; /* 5V @ 1.5A */
+};
+
+&pm8150b_charger {
+	qcom,otg-cl-ua = <2000000>;
+};

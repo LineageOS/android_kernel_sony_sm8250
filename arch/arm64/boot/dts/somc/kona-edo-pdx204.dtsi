@@ -1,0 +1,1262 @@
+/* arch/arm64/boot/dts/vendor/somc/kona-edo-pdx204.dtsi
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 and
+ * only version 2 as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "kona-edo-common.dtsi"
+
+&soc {
+	ldo_vibrator {
+		compatible = "ldo-vibrator";
+		gpios = <&pm8150_gpios 10 1>;
+	};
+
+	sony_camera_module_5: sony,camera_modules@5 {
+		cell-index = <5>;
+		reg = <0x05>;
+		interrupt-parent = <&tlmm>;
+		status = "okay";
+		compatible = "sony_camera_5";
+		module_names = "LT6911UX";
+		default_module_name = "LT6911UX";
+		cam_vdig-supply = <&pm8150a_l2>;
+		cam-vreg-name = "cam_vdig";
+		cam-vreg-type = <0>;
+		cam-vreg-min-voltage = <1200000>;
+		cam-vreg-max-voltage = <1200000>;
+		cam-vreg-op-mode = <0>;
+		gpio-no-mux = <0>;
+		pinctrl-names = "cam_default", "cam_suspend";
+		pinctrl-0 = <&sm_gpio_25 &sm_gpio_26 &sm_gpio_24>;
+		pinctrl-1 = <&sm_gpio_25 &sm_gpio_26 &sm_gpio_24>;
+		gpios = <&tlmm 25 0>, <&tlmm 26 0>, <&tlmm 24 0>;
+		gpio-req-tbl-num = <0 1 2>;
+		gpio-req-tbl-flags = <0 0 1>;
+		gpio-req-tbl-label = "SONY_CAMERA_RESET", "SONY_CAMERA_VANA", "SONY_CAMERA_EXTERNAL";
+		cci-device = <0>;
+		cci-master = <0>;
+		use_spi = <0>;
+		use_qup = <1>;
+		slave_addr = <0x56>;
+		thremal_enable = <0>;
+
+		LT6911UX {
+			i2c_freq_mode = <0>;
+			power_off {
+				commands =
+					"gpio_reset",
+					"cam_vdig",
+					"gpio_vana",
+					"exit";
+				gpio_reset = <6 0xffffffff 0 1000>;
+				cam_vdig = <0 0xffffffff 0 0>;
+				gpio_vana = <10 0xffffffff 0 10000>;
+				exit = <99 0x0 0 0>;
+			};
+			power_on {
+				commands =
+					"gpio_vana",
+					"cam_vdig",
+					"gpio_reset",
+					"exit";
+				gpio_vana = <10 1 0 1000>;
+				cam_vdig = <0 1200 500000 1000>;
+				gpio_reset = <6 1 0 10000>;
+				exit = <99 0x0 0 0>;
+			};
+		};
+	};
+
+	somc_hdmi_detect {
+		status = "okay";
+		compatible = "somc,hdmi_detect";
+		interrupt-parent = <&tlmm>;
+		interrupts = <1127 IRQ_TYPE_EDGE_BOTH>;
+	};
+};
+
+&somc_pinctrl {
+	/* If variant specific default setting is needed,
+	fill pinctrl-2 value in <variant>.dtsi */
+	pinctrl-2 = <&sm_gpio_24 &sm_gpio_25 &sm_gpio_26 &sm_gpio_27 &sm_gpio_60
+		     &sm_gpio_72 &sm_gpio_73 &sm_gpio_112 &sm_gpio_119 &sm_gpio_120
+		     &sm_gpio_121 &sm_gpio_133 &sm_gpio_134 &sm_gpio_135 &sm_gpio_137
+		     &sm_gpio_141>;
+};
+
+&somc_pinctrl_pmic {
+	/* If variant specific PMIC default setting is needed,
+	fill pinctrl-2 value in <variant>.dtsi */
+	pinctrl-2 = <&pm8150_gpio_6 &pm8150_gpio_10>;
+};
+
+&qupv3_se3_i2c {
+	pinctrl-0 = <&sm_gpio_119 &sm_gpio_120>;
+	pinctrl-1 = <&sm_gpio_119_suspend &sm_gpio_120_suspend>;
+	status = "okay";
+	external_camera@0F {
+		compatible = "ext_cam_i2c";
+		reg = <0x0F>;
+	};
+};
+
+&pm8150a_l2 {
+	regulator-min-microvolt = <1200000>;
+	regulator-max-microvolt = <1200000>;
+	qcom,init-voltage = <1200000>;
+	status = "okay";
+};
+
+&pm8150a_l3 {
+	regulator-min-microvolt = <1150000>;
+	regulator-max-microvolt = <1150000>;
+	qcom,init-voltage = <1150000>;
+	qcom,init-ldo-mode = <1>;
+	status = "okay";
+};
+
+&pm8150a_l4 {
+	regulator-min-microvolt = <1800000>;
+	regulator-max-microvolt = <1800000>;
+	qcom,init-voltage = <1800000>;
+	status = "okay";
+};
+
+&q6core {
+	somc_cdc_tert_mi2s_gpios: msm_cdc_pinctrl_tert {
+		compatible = "qcom,msm-cdc-pinctrl";
+		pinctrl-names = "aud_active", "aud_sleep";
+		pinctrl-0 = <&tert_mi2s_sck_active &tert_mi2s_ws_active
+				&tert_mi2s_sd0_active &tert_mi2s_sd1_active>;
+		pinctrl-1 = <&tert_mi2s_sck_sleep &tert_mi2s_ws_sleep
+				&tert_mi2s_sd0_sleep &tert_mi2s_sd1_sleep>;
+	};
+};
+
+&pm8150a_s8 {
+	regulator-min-microvolt = <1340000>;
+};
+
+&dai_mi2s2 {
+	qcom,msm-mi2s-tx-lines = <3>;
+};
+
+&kona_snd {
+	qcom,tert-mi2s-gpios = <&somc_cdc_tert_mi2s_gpios>;
+	qcom,msm-mi2s-master = <1>, <1>, <0>, <1>, <1>, <1>;
+};
+
+/* GPIO_6: MULTI_N */
+&pm8150_gpio_6 {
+	pins = "gpio6";
+	function = "normal";
+	input-enable;
+	bias-pull-up;
+	power-source = <1>;
+	/delete-property/ bias-high-impedance;
+};
+
+/* GPIO_10: VIB_LDO_EN */
+&pm8150_gpio_10 {
+	pins = "gpio10";
+	function = "normal";
+	output-low;
+	drive-push-pull;
+	qcom,drive-strength = <PMIC_GPIO_STRENGTH_LOW>;
+	power-source = <1>;
+	/delete-property/ bias-high-impedance;
+};
+
+/* GPIO_24 : HDMI_INT */
+&sm_gpio_24 {
+	mux {
+		pins = "gpio24";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio24";
+		drive-strength = <2>;
+		bias-pull-down;
+		input-enable;
+	};
+};
+
+/* GPIO_25 : HDMI_RESET_N */
+&sm_gpio_25 {
+	mux {
+		pins = "gpio25";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio25";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-down;
+		bias-disable;
+		/delete-property/ input-enable;
+		output-low;
+	};
+};
+
+/* GPIO_26 : HDMI_IN_PWR_3P2_EN */
+&sm_gpio_26 {
+	mux {
+		pins = "gpio26";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio26";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-down;
+		bias-disable;
+		/delete-property/ input-enable;
+		output-low;
+	};
+};
+
+/* GPIO_27 : HDMI_IN_DETECT_N */
+&sm_gpio_27 {
+	mux {
+		pins = "gpio27";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio27";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-down;
+		bias-pull-up;
+		input-enable;
+	};
+};
+
+/* GPIO_60 : TOF_CSI_SEL */
+&sm_gpio_60 {
+	mux {
+		pins = "gpio60";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio60";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-down;
+		bias-disable;
+		/delete-property/ input-enable;
+		output-low;
+	};
+};
+
+/* GPIO_72 : NC */
+&sm_gpio_72 {
+	mux {
+		pins = "gpio72";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio72";
+		drive-strength = <2>;
+		/delete-property/ bias-disable;
+		bias-pull-down;
+		/delete-property/ output-low;
+		input-enable;
+	};
+};
+
+/* GPIO_73 : NC */
+&sm_gpio_73 {
+	mux {
+		pins = "gpio73";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio73";
+		drive-strength = <2>;
+		/delete-property/ bias-disable;
+		bias-pull-down;
+		/delete-property/ output-low;
+		input-enable;
+	};
+};
+
+/* GPIO_112 : XVS */
+&sm_gpio_112 {
+	mux {
+		pins = "gpio112";
+		function = "cci_timer3";
+	};
+
+	config {
+		pins = "gpio112";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-down;
+		bias-disable;
+		/delete-property/ input-enable;
+	};
+};
+
+/* GPIO_119 : HDMI_I2C_SDA */
+&sm_gpio_119 {
+	mux {
+		pins = "gpio119";
+		function = "qup3";
+	};
+
+	config {
+		pins = "gpio119";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-down;
+		bias-disable;
+		/delete-property/ input-enable;
+	};
+};
+
+/* GPIO_120 : HDMI_I2C_SCL */
+&sm_gpio_120 {
+	mux {
+		pins = "gpio120";
+		function = "qup3";
+	};
+
+	config {
+		pins = "gpio120";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-down;
+		bias-disable;
+		/delete-property/ input-enable;
+	};
+};
+
+&tlmm {
+	/* GPIO_119 : HDMI_I2C_SDA (Suspend) */
+	sm_gpio_119_suspend: sm_gpio_119_suspend {
+		mux {
+			pins = "gpio119";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio119";
+			drive-strength = <2>;
+			bias-disable;
+			input-enable;
+		};
+	};
+
+	/* GPIO_120 : HDMI_I2C_SCL (Suspend) */
+	sm_gpio_120_suspend: sm_gpio_120_suspend {
+		mux {
+			pins = "gpio120";
+			function = "gpio";
+		};
+
+		config {
+			pins = "gpio120";
+			drive-strength = <2>;
+			bias-disable;
+			input-enable;
+		};
+	};
+};
+
+/* GPIO_121 : NC */
+&sm_gpio_121 {
+	mux {
+		pins = "gpio121";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio121";
+		drive-strength = <2>;
+		/delete-property/ bias-pull-up;
+		bias-pull-down;
+		input-enable;
+	};
+};
+
+/* GPIO_133 : HDMI_I2S_SCK */
+&sm_gpio_133 {
+	mux {
+		pins = "gpio133";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio133";
+		drive-strength = <2>;
+		bias-pull-down;
+		input-enable;
+	};
+};
+
+/* GPIO_134 : HDMI_I2S_DATA0 */
+&sm_gpio_134 {
+	mux {
+		pins = "gpio134";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio134";
+		drive-strength = <2>;
+		bias-pull-down;
+		input-enable;
+	};
+};
+
+/* GPIO_135 : HDMI_I2S_WS */
+&sm_gpio_135 {
+	mux {
+		pins = "gpio135";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio135";
+		drive-strength = <2>;
+		bias-pull-down;
+		input-enable;
+	};
+};
+
+/* GPIO_137 : HDMI_I2S_DATA1 */
+&sm_gpio_137 {
+	mux {
+		pins = "gpio137";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio137";
+		drive-strength = <2>;
+		bias-pull-down;
+		input-enable;
+	};
+};
+
+/* GPIO_141 : UIM2_SELECT */
+&sm_gpio_141 {
+	mux {
+		pins = "gpio141";
+		function = "gpio";
+	};
+
+	config {
+		pins = "gpio141";
+		drive-strength = <2>;
+		bias-disable;
+		output-low;
+		/delete-property/ input-enable;
+		/delete-property/ bias-pull-down;
+	};
+};
+
+&soc {
+	gpio_keys {
+		pinctrl-0 = <&pm8150_gpio_1
+			     &pm8150b_gpio_1
+			     &pm8150b_gpio_2
+			     &pm8150_gpio_6>;
+
+		multi_key {
+			label = "multi_key";
+			gpios = <&pm8150_gpios 6 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			linux,code = <KEY_MULTI>;
+			gpio-key,wakeup;
+			debounce-interval = <15>;
+			linux,can-disable;
+		};
+	};
+};
+
+&sony_ext_uim_ctrl {
+	uim2_select_gpio = <&tlmm 141 GPIO_ACTIVE_HIGH>;
+};
+
+&sony_camera_module_4 {
+	status = "okay";
+	pinctrl-0 = <&cam_sensor_mclk4_active &sm_gpio_99 &sm_gpio_60>;
+	pinctrl-1 = <&cam_sensor_mclk4_suspend &sm_gpio_99 &sm_gpio_60>;
+	gpios = <&tlmm 98 0>, <&tlmm 99 0>, <&tlmm 60 0>;
+	gpio-req-tbl-num = <0 1 2>;
+	gpio-req-tbl-flags = <1 0 1>;
+	gpio-req-tbl-label = "CAMIF_MCLK4", "SONY_CAMERA_RESET", "SONY_CAMERA_SWITCH";
+	SUNHQCN1 {
+		i2c_freq_mode = <3>;
+		power_off {
+			commands =
+				"gpio_reset",
+				"gpio_switch",
+				"cam_clk",
+				"cam_vdig",
+				"cam_vana",
+				"cam_vmdr",
+				"cam_vio",
+				"cam_pmic0",
+				"pmic_vin",
+				"exit";
+			gpio_reset = <6 0x0 0 25>;
+			gpio_switch = <9 0 0 1>;
+			cam_clk = <4 0xffffffff 0 1>;
+			cam_vdig = <0 0xffffffff 0 1>;
+			cam_vana = <2 0xffffffff 0 1>;
+			cam_vmdr = <5 0xffffffff 0 1>;
+			cam_vio = <1 0xffffffff 0 1>;
+			cam_pmic0 = <40 0xffffffff 0 0>;
+			pmic_vin = <42 3350 3960 0>;
+			exit = <99 0x0 0 0>;
+		};
+		power_on {
+			commands =
+				"pmic_vin",
+				"cam_pmic0",
+				"cam_vio",
+				"cam_vmdr",
+				"cam_vana",
+				"cam_vdig",
+				"cam_clk",
+				"gpio_switch",
+				"gpio_reset",
+				"exit";
+			pmic_vin = <42 3800 3960 1000>;
+			cam_pmic0 = <40 0 0 10000>;
+			cam_vio = <1 1800 0 0>;
+			cam_vmdr = <5 3300 0 0>;
+			cam_vana = <2 2700 0 0>;
+			cam_vdig = <0 1200 0 9000>;
+			cam_clk = <4 24000000 0 200>;
+			gpio_switch = <9 1 0 1>;
+			gpio_reset = <6 1 0 1100>;
+			exit = <99 0x0 0 0>;
+		};
+	};
+};
+
+&thermal_zones {
+	sdm_modem_pa {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			sdm_modem_pa_0: sdm_modem_pa_0 {
+				temperature = <58500>;
+				hysteresis = <4400>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			sdm_modem_pa_cdev0_0 {
+				trip = <&sdm_modem_pa_0>;
+				cooling-device = <&modem_pa 1 1>;
+			};
+		};
+	};
+
+	sdm_modem_pa_fr1 {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			sdm_modem_pa_fr1_0: sdm_modem_pa_fr1_0 {
+				temperature = <58500>;
+				hysteresis = <4400>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			sdm_modem_pa_fr1_cdev0_0 {
+				trip = <&sdm_modem_pa_fr1_0>;
+				cooling-device = <&modem_pa_fr1 1 1>;
+			};
+		};
+	};
+
+	sdm_modem_skin {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			sdm_modem_skin_0: sdm_modem_skin_0 {
+				temperature = <60300>;
+				hysteresis = <4400>;
+				type = "passive";
+			};
+			sdm_modem_skin_1: sdm_modem_skin_1 {
+				temperature = <61400>;
+				hysteresis = <7700>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			sdm_modem_skin_cdev0_0 {
+				trip = <&sdm_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+			sdm_modem_skin_cdev0_1 {
+				trip = <&sdm_modem_skin_1>;
+				cooling-device = <&modem_skin 2 2>;
+			};
+		};
+	};
+
+	mmw0_mmw_skin0 {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_0)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw0_mmw_skin0_0: mmw0_mmw_skin0_0 {
+				temperature = <66000>;
+				hysteresis = <5000>;
+				type = "passive";
+			};
+			mmw0_mmw_skin0_1: mmw0_mmw_skin0_1 {
+				temperature = <67000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			mmw0_mmw_skin0_2: mmw0_mmw_skin0_2 {
+				temperature = <68000>;
+				hysteresis = <7000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw0_mmw_skin0_cdev0_0 {
+				trip = <&mmw0_mmw_skin0_0>;
+				cooling-device = <&modem_mmw_skin0 1 1>;
+			};
+			mmw0_mmw_skin0_cdev0_1 {
+				trip = <&mmw0_mmw_skin0_1>;
+				cooling-device = <&modem_mmw_skin0 2 2>;
+			};
+			mmw0_mmw_skin0_cdev0_2 {
+				trip = <&mmw0_mmw_skin0_2>;
+				cooling-device = <&modem_mmw_skin0 3 3>;
+			};
+		};
+	};
+
+	mmw0_modem_skin {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_0)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw0_modem_skin_0: mmw0_modem_skin_0 {
+				temperature = <67000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw0_modem_skin_cdev0_0 {
+				trip = <&mmw0_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	mmw1_mmw_skin1 {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_1)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw1_mmw_skin1_0: mmw1_mmw_skin1_0 {
+				temperature = <68000>;
+				hysteresis = <5000>;
+				type = "passive";
+			};
+			mmw1_mmw_skin1_1: mmw1_mmw_skin1_1 {
+				temperature = <69000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			mmw1_mmw_skin1_2: mmw1_mmw_skin1_2 {
+				temperature = <70000>;
+				hysteresis = <7000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw1_mmw_skin1_cdev0_0 {
+				trip = <&mmw1_mmw_skin1_0>;
+				cooling-device = <&modem_mmw_skin1 1 1>;
+			};
+			mmw1_mmw_skin1_cdev0_1 {
+				trip = <&mmw1_mmw_skin1_1>;
+				cooling-device = <&modem_mmw_skin1 2 2>;
+			};
+			mmw1_mmw_skin1_cdev0_2 {
+				trip = <&mmw1_mmw_skin1_2>;
+				cooling-device = <&modem_mmw_skin1 3 3>;
+			};
+		};
+	};
+
+	mmw1_modem_skin {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_1)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw1_modem_skin_0: mmw1_modem_skin_0 {
+				temperature = <69000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw1_modem_skin_cdev0_0 {
+				trip = <&mmw1_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	mmw2_mmw_skin2 {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_2)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw2_mmw_skin2_0: mmw2_mmw_skin2_0 {
+				temperature = <66000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			mmw2_mmw_skin2_1: mmw2_mmw_skin2_1 {
+				temperature = <67000>;
+				hysteresis = <7000>;
+				type = "passive";
+			};
+			mmw2_mmw_skin2_2: mmw2_mmw_skin2_2 {
+				temperature = <68000>;
+				hysteresis = <8000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw2_mmw_skin2_cdev0_0 {
+				trip = <&mmw2_mmw_skin2_0>;
+				cooling-device = <&modem_mmw_skin2 1 1>;
+			};
+			mmw2_mmw_skin2_cdev0_1 {
+				trip = <&mmw2_mmw_skin2_1>;
+				cooling-device = <&modem_mmw_skin2 2 2>;
+			};
+			mmw2_mmw_skin2_cdev0_2 {
+				trip = <&mmw2_mmw_skin2_2>;
+				cooling-device = <&modem_mmw_skin2 3 3>;
+			};
+		};
+	};
+
+	mmw2_modem_skin {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_2)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw2_modem_skin_0: mmw2_modem_skin_0 {
+				temperature = <67000>;
+				hysteresis = <5000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw2_modem_skin_cdev0_0 {
+				trip = <&mmw2_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	mmw3_mmw_skin3 {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_3)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw3_mmw_skin3_0: mmw3_mmw_skin3_0 {
+				temperature = <64000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			mmw3_mmw_skin3_1: mmw3_mmw_skin3_1 {
+				temperature = <64500>;
+				hysteresis = <6500>;
+				type = "passive";
+			};
+			mmw3_mmw_skin3_2: mmw3_mmw_skin3_2 {
+				temperature = <65000>;
+				hysteresis = <7000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw3_mmw_skin3_cdev0_0 {
+				trip = <&mmw3_mmw_skin3_0>;
+				cooling-device = <&modem_mmw_skin3 1 1>;
+			};
+			mmw3_mmw_skin3_cdev0_1 {
+				trip = <&mmw3_mmw_skin3_1>;
+				cooling-device = <&modem_mmw_skin3 2 2>;
+			};
+			mmw3_mmw_skin3_cdev0_2 {
+				trip = <&mmw3_mmw_skin3_2>;
+				cooling-device = <&modem_mmw_skin3 3 3>;
+			};
+		};
+	};
+
+	mmw3_modem_skin {
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_3)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			mmw3_modem_skin_0: mmw3_modem_skin_0 {
+				temperature = <64000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			mmw3_modem_skin_cdev0_0 {
+				trip = <&mmw3_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	e_sdm_modem_pa {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_sdm_modem_pa_0: e_sdm_modem_pa_0 {
+				temperature = <61700>;
+				hysteresis = <4400>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_sdm_modem_pa_cdev0_0 {
+				trip = <&e_sdm_modem_pa_0>;
+				cooling-device = <&modem_pa 1 1>;
+			};
+		};
+	};
+
+	e_sdm_modem_pa_fr1 {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_sdm_modem_pa_fr1_0: e_sdm_modem_pa_fr1_0 {
+				temperature = <61700>;
+				hysteresis = <4400>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_sdm_modem_pa_fr1_cdev0_0 {
+				trip = <&e_sdm_modem_pa_fr1_0>;
+				cooling-device = <&modem_pa_fr1 1 1>;
+			};
+		};
+	};
+
+	e_sdm_modem_skin {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_sdm_modem_skin_0: e_sdm_modem_skin_0 {
+				temperature = <63700>;
+				hysteresis = <4500>;
+				type = "passive";
+			};
+			e_sdm_modem_skin_1: e_sdm_modem_skin_1 {
+				temperature = <64700>;
+				hysteresis = <7700>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_sdm_modem_skin_cdev0_0 {
+				trip = <&e_sdm_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+			e_sdm_modem_skin_cdev0_1 {
+				trip = <&e_sdm_modem_skin_1>;
+				cooling-device = <&modem_skin 2 2>;
+			};
+		};
+	};
+
+	e_mmw0_mmw_skin0 {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_0)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw0_mmw_skin0_0: e_mmw0_mmw_skin0_0 {
+				temperature = <69000>;
+				hysteresis = <5000>;
+				type = "passive";
+			};
+			e_mmw0_mmw_skin0_1: e_mmw0_mmw_skin0_1 {
+				temperature = <70000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			e_mmw0_mmw_skin0_2: e_mmw0_mmw_skin0_2 {
+				temperature = <71000>;
+				hysteresis = <7000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw0_mmw_skin0_cdev0_0 {
+				trip = <&e_mmw0_mmw_skin0_0>;
+				cooling-device = <&modem_mmw_skin0 1 1>;
+			};
+			e_mmw0_mmw_skin0_cdev0_1 {
+				trip = <&e_mmw0_mmw_skin0_1>;
+				cooling-device = <&modem_mmw_skin0 2 2>;
+			};
+			e_mmw0_mmw_skin0_cdev0_2 {
+				trip = <&e_mmw0_mmw_skin0_2>;
+				cooling-device = <&modem_mmw_skin0 3 3>;
+			};
+		};
+	};
+
+	e_mmw0_modem_skin {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_0)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw0_modem_skin_0: e_mmw0_modem_skin_0 {
+				temperature = <70000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw0_modem_skin_cdev0_0 {
+				trip = <&e_mmw0_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	e_mmw1_mmw_skin1 {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_1)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw1_mmw_skin1_0: e_mmw1_mmw_skin1_0 {
+				temperature = <71000>;
+				hysteresis = <5000>;
+				type = "passive";
+			};
+			e_mmw1_mmw_skin1_1: e_mmw1_mmw_skin1_1 {
+				temperature = <72000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			e_mmw1_mmw_skin1_2: e_mmw1_mmw_skin1_2 {
+				temperature = <73000>;
+				hysteresis = <7000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw1_mmw_skin1_cdev0_0 {
+				trip = <&e_mmw1_mmw_skin1_0>;
+				cooling-device = <&modem_mmw_skin1 1 1>;
+			};
+			e_mmw1_mmw_skin1_cdev0_1 {
+				trip = <&e_mmw1_mmw_skin1_1>;
+				cooling-device = <&modem_mmw_skin1 2 2>;
+			};
+			e_mmw1_mmw_skin1_cdev0_2 {
+				trip = <&e_mmw1_mmw_skin1_2>;
+				cooling-device = <&modem_mmw_skin1 3 3>;
+			};
+		};
+	};
+
+	e_mmw1_modem_skin {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_1)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw1_modem_skin_0: e_mmw1_modem_skin_0 {
+				temperature = <72000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw1_modem_skin_cdev0_0 {
+				trip = <&e_mmw1_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	e_mmw2_mmw_skin2 {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_2)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw2_mmw_skin2_0: e_mmw2_mmw_skin2_0 {
+				temperature = <69000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			e_mmw2_mmw_skin2_1: e_mmw2_mmw_skin2_1 {
+				temperature = <71000>;
+				hysteresis = <8000>;
+				type = "passive";
+			};
+			e_mmw2_mmw_skin2_2: e_mmw2_mmw_skin2_2 {
+				temperature = <72000>;
+				hysteresis = <9000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw2_mmw_skin2_cdev0_0 {
+				trip = <&e_mmw2_mmw_skin2_0>;
+				cooling-device = <&modem_mmw_skin2 1 1>;
+			};
+			e_mmw2_mmw_skin2_cdev0_1 {
+				trip = <&e_mmw2_mmw_skin2_1>;
+				cooling-device = <&modem_mmw_skin2 2 2>;
+			};
+			e_mmw2_mmw_skin2_cdev0_2 {
+				trip = <&e_mmw2_mmw_skin2_2>;
+				cooling-device = <&modem_mmw_skin2 3 3>;
+			};
+		};
+	};
+
+	e_mmw2_modem_skin {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_2)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw2_modem_skin_0: e_mmw2_modem_skin_0 {
+				temperature = <70000>;
+				hysteresis = <5000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw2_modem_skin_cdev0_0 {
+				trip = <&e_mmw2_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	e_mmw3_mmw_skin3 {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_3)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw3_mmw_skin3_0: e_mmw3_mmw_skin3_0 {
+				temperature = <66000>;
+				hysteresis = <5000>;
+				type = "passive";
+			};
+			e_mmw3_mmw_skin3_1: e_mmw3_mmw_skin3_1 {
+				temperature = <67000>;
+				hysteresis = <6000>;
+				type = "passive";
+			};
+			e_mmw3_mmw_skin3_2: e_mmw3_mmw_skin3_2 {
+				temperature = <68000>;
+				hysteresis = <7000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw3_mmw_skin3_cdev0_0 {
+				trip = <&e_mmw3_mmw_skin3_0>;
+				cooling-device = <&modem_mmw_skin3 1 1>;
+			};
+			e_mmw3_mmw_skin3_cdev0_1 {
+				trip = <&e_mmw3_mmw_skin3_1>;
+				cooling-device = <&modem_mmw_skin3 2 2>;
+			};
+			e_mmw3_mmw_skin3_cdev0_2 {
+				trip = <&e_mmw3_mmw_skin3_2>;
+				cooling-device = <&modem_mmw_skin3 3 3>;
+			};
+		};
+	};
+
+	e_mmw3_modem_skin {
+		disable-thermal-zone;
+		polling-delay-passive = <0>;
+		polling-delay = <0>;
+		thermal-sensors = <&qmi_sensor
+				(QMI_MODEM_NR_INST_ID+QMI_QFE_MMW_3)>;
+		thermal-governor = "step_wise";
+		wake-capable-sensor;
+		trips {
+			e_mmw3_modem_skin_0: e_mmw3_modem_skin_0 {
+				temperature = <67000>;
+				hysteresis = <4000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			e_mmw3_modem_skin_cdev0_0 {
+				trip = <&e_mmw3_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+		};
+	};
+
+	battery_modem_skin {
+		polling-delay-passive = <1000>;
+		polling-delay = <1000>;
+		thermal-sensors = <&pm8150b_fg>;
+		thermal-governor = "low_limits_cap";
+		tracks-low;
+		wake-capable-sensor;
+		trips {
+			battery_modem_skin_0: battery_modem_skin_0 {
+				temperature = <1000>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
+			battery_modem_skin_1: battery_modem_skin_1 {
+				temperature = <1>;
+				hysteresis = <1000>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			battery_modem_skin_cdev0_0 {
+				trip = <&battery_modem_skin_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+			battery_modem_skin_cdev0_1 {
+				trip = <&battery_modem_skin_1>;
+				cooling-device = <&modem_skin 2 2>;
+			};
+		};
+	};
+	soc {
+		trips {
+			bcl_soc_0: bcl_soc_0 {
+				temperature = <10>;
+				hysteresis = <1>;
+				type = "passive";
+			};
+			bcl_soc_1: bcl_soc_1 {
+				temperature = <9>;
+				hysteresis = <1>;
+				type = "passive";
+			};
+		};
+		cooling-maps {
+			bcl_soc_cdev0_0 {
+				trip = <&bcl_soc_0>;
+				cooling-device = <&modem_skin 1 1>;
+			};
+			bcl_soc_cdev0_1 {
+				trip = <&bcl_soc_1>;
+				cooling-device = <&modem_skin 2 2>;
+			};
+		};
+	};
+};
+
+#include "somc-edo-display.dtsi"
+#include "somc-edo-display-pdx203.dtsi"
+#include "charger-edo-common.dtsi"
+#include "charger-edo-pdx204.dtsi"
+#include "usb-dp-edo-pdx204.dtsi"
+#include "somc-edo-nfc_pn557.dtsi"
+#include "sec_touchscreen_pdx204.dtsi"

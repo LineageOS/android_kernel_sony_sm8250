@@ -25,6 +25,7 @@ subdir-y += sprd
 subdir-y += synaptics
 subdir-y += ti
 subdir-y += xilinx
+subdir-y += somc
 subdir-y += zte
 
 
