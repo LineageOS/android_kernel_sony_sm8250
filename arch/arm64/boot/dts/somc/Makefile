@@ -1,9 +1,9 @@
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
 
 dtbo-y += \
-    $(CONFIG_SOMC_VARIANT)-overlay.dtbo
+    kona-edo-pdx203_generic-overlay.dtbo
 
-$(CONFIG_SOMC_VARIANT)-overlay.dtbo-base := \
+kona-edo-pdx203_generic-overlay.dtbo-base := \
     ../qcom/kona.dtb ../qcom/kona-v2.dtb ../qcom/kona-v2.1.dtb
 
 else
