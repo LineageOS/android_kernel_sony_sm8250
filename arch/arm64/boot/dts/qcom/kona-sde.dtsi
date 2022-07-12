@@ -96,6 +96,9 @@
 		qcom,sde-dsc-off = <0x81000 0x81400 0x81800 0x81c00>;
 		qcom,sde-dsc-size = <0x140>;
 
+		qcom,sde-dsc-pair-mask = <2 1 4 3>;
+		qcom,sde-dsc-linewidth = <0x800>;
+
 		qcom,sde-dither-off = <0x30e0 0x30e0 0x30e0
 							0x30e0 0x30e0 0x30e0>;
 		qcom,sde-dither-version = <0x00010000>;
@@ -160,8 +163,8 @@
 		qcom,sde-max-dest-scaler-output-linewidth = <2560>;
 		qcom,sde-max-bw-low-kbps = <13700000>;
 		qcom,sde-max-bw-high-kbps = <16600000>;
-		qcom,sde-min-core-ib-kbps = <2400000>;
-		qcom,sde-min-llcc-ib-kbps = <800000>;
+		qcom,sde-min-core-ib-kbps = <4800000>;
+		qcom,sde-min-llcc-ib-kbps = <0>;
 		qcom,sde-min-dram-ib-kbps = <800000>;
 		qcom,sde-dram-channels = <2>;
 		qcom,sde-num-nrt-paths = <0>;
@@ -204,6 +207,7 @@
 
 		qcom,sde-qos-cpu-mask = <0x3>;
 		qcom,sde-qos-cpu-dma-latency = <300>;
+		qcom,sde-qos-cpu-irq-latency = <300>;
 
 		/* offsets are relative to "mdp_phys + qcom,sde-off */
 
@@ -247,7 +251,7 @@
 			qcom,sde-dspp-hist = <0x800 0x00010007>;
 			qcom,sde-dspp-sixzone= <0x900 0x00010007>;
 			qcom,sde-dspp-vlut = <0xa00 0x00010008>;
-			qcom,sde-dspp-gamut = <0x1000 0x00040001>;
+			qcom,sde-dspp-gamut = <0x1000 0x00040002>;
 			qcom,sde-dspp-pcc = <0x1700 0x00040000>;
 			qcom,sde-dspp-gc = <0x17c0 0x00010008>;
 			qcom,sde-dspp-dither = <0x82c 0x00010007>;
@@ -304,6 +308,37 @@
 				<1 590 0 150000>,
 				<1 590 0 300000>;
 		};
+
+		qcom,sde-limits {
+
+			qcom,sde-linewidth-limits {
+				qcom,sde-limit-name = "sspp_linewidth_usecases";
+				qcom,sde-limit-cases = "vig", "dma", "scale", "inline_rot";
+				qcom,sde-limit-ids = <0x1 0x2 0x4 0x8>;
+				qcom,sde-limit-values = <0x01 4096>,
+										<0x05 2560>,
+										<0x02 4096>,
+										<0x09 1088>;
+			};
+
+			qcom,sde-bw-limits {
+				qcom,sde-limit-name = "sde_bwlimit_usecases";
+				qcom,sde-limit-cases = "per_vig_pipe", "per_dma_pipe", "total_max_bw", "camera_concurrency", "cwb_concurrency";
+				qcom,sde-limit-ids = <0x1 0x2 0x4 0x8 0x10>;
+				qcom,sde-limit-values = <0x01 5300000>,
+										<0x11 5300000>,
+										<0x09 4400000>,
+										<0x19 4400000>,
+										<0x02 5300000>,
+										<0x12 5300000>,
+										<0x0a 4400000>,
+										<0x1a 4400000>,
+										<0x04 16600000>,
+										<0x14 16600000>,
+										<0x0c 13700000>,
+										<0x1c 13700000>;
+			};
+		};
 	};
 
 	sde_dp: qcom,dp_display@ae90000 {
@@ -321,7 +356,6 @@
 			<0x88ea200 0x200>,
 			<0x88ea600 0x200>,
 			<0xaf02000 0x1a0>,
-			<0x780000 0x621c>,
 			<0x88ea040 0x10>,
 			<0x88e8000 0x20>,
 			<0x0aee1000 0x034>,
@@ -329,7 +363,7 @@
 		/* dp_ctrl: dp_ahb, dp_aux, dp_link, dp_p0 */
 		reg-names = "dp_ahb", "dp_aux", "dp_link",
 			"dp_p0", "dp_phy", "dp_ln_tx0", "dp_ln_tx1",
-			"dp_mmss_cc", "qfprom_physical", "dp_pll",
+			"dp_mmss_cc", "dp_pll",
 			"usb3_dp_com", "hdcp_physical", "dp_p1";
 
 		interrupt-parent = <&mdss_mdp>;
@@ -370,8 +404,6 @@
 		qcom,widebus-enable;
 		qcom,dsc-feature-enable;
 		qcom,fec-feature-enable;
-		qcom,max-dp-dsc-blks = <2>;
-		qcom,max-dp-dsc-input-width-pixs = <2048>;
 
 		qcom,ctrl-supply-entries {
 			#address-cells = <1>;
@@ -454,6 +486,17 @@
 			    <20000 20512 0 6400000>,
 			    <20000 20512 0 6400000>;
 		};
+
+		qcom,sde-reg-bus {
+			qcom,msm-bus,name = "disp_rsc_reg";
+			qcom,msm-bus,num-cases = <4>;
+			qcom,msm-bus,num-paths = <1>;
+			qcom,msm-bus,vectors-KBps =
+				<1 590 0 0>,
+				<1 590 0 76800>,
+				<1 590 0 150000>,
+				<1 590 0 300000>;
+		};
 	};
 
 	mdss_rotator: qcom,mdss_rotator@aea8800 {
@@ -520,7 +563,8 @@
 		smmu_rot_unsec: qcom,smmu_rot_unsec_cb {
 			compatible = "qcom,smmu_sde_rot_unsec";
 			iommus = <&apps_smmu 0x215C 0x0400>;
-			qcom,iommu-dma = "disabled";
+			qcom,iommu-dma-addr-pool = <0x00020000 0xfffe0000>;
+			qcom,iommu-faults = "non-fatal";
 		};
 	};
 
@@ -528,6 +572,7 @@
 		compatible = "qcom,dsi-ctrl-hw-v2.4";
 		label = "dsi-ctrl-0";
 		cell-index = <0>;
+		frame-threshold-time-us = <800>;
 		reg = <0xae94000 0x400>,
 			<0xaf08000 0x4>;
 		reg-names = "dsi_ctrl", "disp_cc_base";
@@ -577,6 +622,7 @@
 		compatible = "qcom,dsi-ctrl-hw-v2.4";
 		label = "dsi-ctrl-1";
 		cell-index = <1>;
+		frame-threshold-time-us = <800>;
 		reg = <0xae96000 0x400>,
 			<0xaf08000 0x4>;
 		reg-names = "dsi_ctrl", "disp_cc_base";
@@ -625,8 +671,9 @@
 		compatible = "qcom,dsi-phy-v4.1";
 		label = "dsi-phy-0";
 		cell-index = <0>;
-		reg = <0xae94400 0x760>;
-		reg-names = "dsi_phy";
+		reg = <0xae94400 0x7c0>,
+			  <0xae94200 0x100>;
+		reg-names = "dsi_phy", "dyn_refresh_base";
 		vdda-0p9-supply = <&pm8150_l5>;
 		qcom,platform-strength-ctrl = [55 03
 						55 03
@@ -657,8 +704,9 @@
 		compatible = "qcom,dsi-phy-v4.1";
 		label = "dsi-phy-1";
 		cell-index = <1>;
-		reg = <0xae96400 0x760>;
-		reg-names = "dsi_phy";
+		reg = <0xae96400 0x7c0>,
+			<0xae96200 0x100>;
+		reg-names = "dsi_phy", "dyn_refresh_base";
 		vdda-0p9-supply = <&pm8150_l5>;
 		qcom,platform-strength-ctrl = [55 03
 						55 03
