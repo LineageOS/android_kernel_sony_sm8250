@@ -1,10 +1,20 @@
 ifeq ($(CONFIG_BUILD_ARM64_DT_OVERLAY),y)
+dtbo-$(CONFIG_MACH_SONY_PDX203) += \
+	kona-edo-pdx203_generic-overlay.dtbo
+dtbo-$(CONFIG_MACH_SONY_PDX204) += \
+	kona-edo-pdx204-overlay.dtbo
+dtbo-$(CONFIG_MACH_SONY_PDX206) += \
+	kona-edo-pdx206_generic-overlay.dtbo
 
-dtbo-y += \
-    kona-edo-pdx203_generic-overlay.dtbo
-
-kona-edo-pdx203_generic-overlay.dtbo-base := \
-    ../qcom/kona.dtb ../qcom/kona-v2.dtb ../qcom/kona-v2.1.dtb
+ifeq ($(CONFIG_MACH_SONY_PDX203),y)
+kona-edo-pdx203_generic-overlay.dtbo-base := ../qcom/kona.dtb ../qcom/kona-v2.dtb ../qcom/kona-v2.1.dtb
+endif
+ifeq ($(CONFIG_MACH_SONY_PDX204),y)
+kona-edo-pdx204-overlay.dtbo-base := ../qcom/kona.dtb ../qcom/kona-v2.dtb ../qcom/kona-v2.1.dtb
+endif
+ifeq ($(CONFIG_MACH_SONY_PDX206),y)
+kona-edo-pdx206_generic-overlay.dtbo-base := ../qcom/kona.dtb ../qcom/kona-v2.dtb ../qcom/kona-v2.1.dtb
+endif
 
 else
 dtb-$(CONFIG_MACH_SONY_PDX203) += \
