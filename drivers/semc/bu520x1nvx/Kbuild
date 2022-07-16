@@ -1,1 +1,1 @@
-obj-m := bu520x1nvx.o
+obj-y := bu520x1nvx.o

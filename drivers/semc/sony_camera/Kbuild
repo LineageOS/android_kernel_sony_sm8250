@@ -9,4 +9,4 @@ ccflags-y += -Itechpack/camera/drivers/cam_sensor_module/cam_sensor_utils
 ccflags-y += -Itechpack/camera/drivers/cam_smmu
 ccflags-y += -Itechpack/camera/drivers/cam_req_mgr
 ccflags-y += -DCONFIG_SPECTRA_CAMERA=1
-obj-m += sony_camera.o
+obj-y += sony_camera.o

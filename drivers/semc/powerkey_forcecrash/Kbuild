@@ -1,1 +1,1 @@
-obj-m := powerkey_forcecrash.o
+obj-y := powerkey_forcecrash.o

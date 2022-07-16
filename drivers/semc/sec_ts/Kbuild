@@ -1,6 +1,6 @@
 MODULE_NAME = sec_touchscreen
 
-obj-m := $(MODULE_NAME).o
+obj-y := $(MODULE_NAME).o
 
 $(MODULE_NAME)-objs := sec_ts.o
 $(MODULE_NAME)-objs += sec_ts_fn.o
