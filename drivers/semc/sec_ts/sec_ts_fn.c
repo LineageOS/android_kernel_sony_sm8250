@@ -11,6 +11,7 @@
  * published by the Free Software Foundation.
  */
 
+#include "include/sec_cmd.h"
 #include "include/sec_ts.h"
 
 static void fw_update(void *device_data);
@@ -91,6 +92,7 @@ static void wireless_charging(void *device_data);
 static void game_enhancer_grip_rejection(void *device_data);
 static void jitter_filter_mode(void *device_data);
 static void not_support_cmd(void *device_data);
+static void get_stamina_mode(void *device_data);
 
 static void sec_ts_print_frame(struct sec_ts_data *ts, short *min, short *max);
 
@@ -173,6 +175,7 @@ static struct sec_cmd sec_cmds[] = {
 	{SEC_CMD("game_enhancer_grip_rejection", game_enhancer_grip_rejection),},
 	{SEC_CMD("jitter_filter_mode", jitter_filter_mode),},
 	{SEC_CMD("not_support_cmd", not_support_cmd),},
+	{SEC_CMD("get_stamina_mode", get_stamina_mode),},
 };
 
 static ssize_t scrub_position_show(struct device *dev,
@@ -5504,6 +5507,21 @@ static void not_support_cmd(void *device_data)
 	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 	sec->cmd_state = SEC_CMD_STATUS_NOT_APPLICABLE;
 	sec_cmd_set_cmd_exit(sec);
+}
+
+static void get_stamina_mode(void *device_data)
+{
+	struct sec_cmd_data *sec = (struct sec_cmd_data *)device_data;
+	struct sec_ts_data *ts = container_of(sec, struct sec_ts_data, sec);
+	char buff[SEC_CMD_STR_LEN] = { 0 };
+
+	sec_cmd_set_default_result(sec);
+
+	// We do not do screen on/off detection here because it is not needed
+	snprintf(buff, sizeof(buff), "%d", ts->stamina_enable);
+
+	sec->cmd_state = SEC_CMD_STATUS_OK;
+	sec_cmd_set_cmd_result(sec, buff, strnlen(buff, sizeof(buff)));
 }
 
 int sec_ts_fn_init(struct sec_ts_data *ts)
