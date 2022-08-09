@@ -575,6 +575,7 @@ void *dma_buf_vmap(struct dma_buf *);
 void dma_buf_vunmap(struct dma_buf *, void *vaddr);
 int dma_buf_get_flags(struct dma_buf *dma_buf, unsigned long *flags);
 int dma_buf_get_uuid(struct dma_buf *dma_buf, uuid_t *uuid);
+long dma_buf_get_size(void);
 
 /**
  * dma_buf_set_destructor - set the dma-buf's destructor

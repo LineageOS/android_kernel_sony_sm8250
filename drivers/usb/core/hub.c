@@ -3544,6 +3544,7 @@ int usb_port_resume(struct usb_device *udev, pm_message_t msg)
 		/* drive resume for USB_RESUME_TIMEOUT msec */
 		dev_dbg(&udev->dev, "usb %sresume\n",
 				(PMSG_IS_AUTO(msg) ? "auto-" : ""));
+                msleep(USB_RESUME_TIMEOUT);
 		if (!skip_extended_resume_delay ||
 				udev->parent != udev->bus->root_hub)
 			usleep_range(USB_RESUME_TIMEOUT * 1000,

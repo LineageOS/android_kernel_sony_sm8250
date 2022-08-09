@@ -151,8 +151,7 @@ static int qdss_check_entry(struct qdss_bridge_drvdata *drvdata)
 	int ret = 0;
 
 	list_for_each_entry(entry, &drvdata->buf_tbl, link) {
-		if (atomic_read(&entry->available) == 0
-			&& atomic_read(&entry->used) == 1) {
+		if (atomic_read(&entry->available) == 0) {
 			ret = 1;
 			return ret;
 		}
@@ -200,7 +199,6 @@ static void qdss_buf_tbl_remove(struct qdss_bridge_drvdata *drvdata,
 		if (entry->buf != buf)
 			continue;
 		atomic_set(&entry->available, 1);
-		atomic_set(&entry->used, 0);
 		spin_unlock_bh(&drvdata->lock);
 		return;
 	}
@@ -384,7 +382,6 @@ static int usb_write(struct qdss_bridge_drvdata *drvdata,
 
 	entry->usb_req->buf = buf;
 	entry->usb_req->length = len;
-	atomic_set(&entry->used, 1);
 	ret = usb_qdss_write(drvdata->usb_ch, entry->usb_req);
 
 	return ret;
@@ -468,7 +465,8 @@ static void usb_notifier(void *priv, unsigned int event,
 {
 	struct qdss_bridge_drvdata *drvdata = priv;
 
-	if (!drvdata || drvdata->mode != MHI_TRANSFER_TYPE_USB) {
+	if (!drvdata || drvdata->mode != MHI_TRANSFER_TYPE_USB
+			|| drvdata->opened != ENABLE) {
 		pr_err_ratelimited("%s can't be called in invalid status.\n",
 				__func__);
 		return;
@@ -476,10 +474,8 @@ static void usb_notifier(void *priv, unsigned int event,
 
 	switch (event) {
 	case USB_QDSS_CONNECT:
-		if (drvdata->opened == ENABLE) {
-			usb_qdss_alloc_req(ch, drvdata->nr_trbs);
-			mhi_queue_read(drvdata);
-		}
+		usb_qdss_alloc_req(ch, drvdata->nr_trbs);
+		mhi_queue_read(drvdata);
 		break;
 
 	case USB_QDSS_DISCONNECT:

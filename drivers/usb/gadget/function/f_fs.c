@@ -1094,12 +1094,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 			 */
 			spin_lock_irq(&epfile->ffs->eps_lock);
 			interrupted = true;
-			/*
-			 * While we were acquiring lock endpoint got
-			 * disabled (disconnect) or changed
-			 (composition switch) ?
-			 */
-			if (epfile->ep == ep) {
+			if (ep->ep) {
 				usb_ep_dequeue(ep->ep, req);
 				spin_unlock_irq(&epfile->ffs->eps_lock);
 				wait_for_completion(&done);
@@ -1119,12 +1114,7 @@ static ssize_t ffs_epfile_io(struct file *file, struct ffs_io_data *io_data)
 
 		ret = -ENODEV;
 		spin_lock_irq(&epfile->ffs->eps_lock);
-		/*
-		 * While we were acquiring lock endpoint got
-		 * disabled (disconnect) or changed
-		 * (composition switch) ?
-		 */
-		if (epfile->ep == ep)
+		if (ep->ep)
 			ret = ep->status;
 		spin_unlock_irq(&epfile->ffs->eps_lock);
 		if (io_data->read && ret > 0)
@@ -3802,7 +3792,6 @@ static void ffs_func_unbind(struct usb_configuration *c,
 		if (ep->ep && ep->req)
 			usb_ep_free_request(ep->ep, ep->req);
 		ep->req = NULL;
-		ep->ep = NULL;
 		++ep;
 	}
 	spin_unlock_irqrestore(&func->ffs->eps_lock, flags);

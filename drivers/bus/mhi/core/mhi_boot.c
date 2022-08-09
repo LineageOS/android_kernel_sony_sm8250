@@ -16,6 +16,7 @@
 #include <linux/wait.h>
 #include <linux/mhi.h>
 #include "mhi_internal.h"
+#include <soc/qcom/subsystem_restart.h>
 
 static void mhi_process_sfr(struct mhi_controller *mhi_cntrl,
 	struct file_info *info)
@@ -25,6 +26,7 @@ static void mhi_process_sfr(struct mhi_controller *mhi_cntrl,
 	u32 file_size = info->file_size;
 	u32 rem_seg_len = info->rem_seg_len;
 	u32 seg_idx = info->seg_idx;
+	char msg[SUBSYS_CRASH_REASON_LEN];
 
 	sfr_buf = kzalloc(file_size + 1, GFP_KERNEL);
 	if (!sfr_buf)
@@ -56,6 +58,9 @@ static void mhi_process_sfr(struct mhi_controller *mhi_cntrl,
 		}
 	}
 	sfr_buf[info->file_size] = '\0';
+
+	strlcpy(msg, sfr_buf, SUBSYS_CRASH_REASON_LEN);
+	subsystem_crash_reason("wlan", msg);
 
 	/* force sfr string to log in kernel msg */
 	MHI_ERR("%s\n", sfr_buf);
@@ -185,7 +190,7 @@ static int __mhi_download_rddm_in_panic(struct mhi_controller *mhi_cntrl)
 	enum mhi_ee ee;
 	const u32 delayus = 5000;
 	u32 retry = (mhi_cntrl->timeout_ms * 1000) / delayus;
-	const u32 rddm_timeout_us = 350000;
+	const u32 rddm_timeout_us = 200000;
 	int rddm_retry = rddm_timeout_us / delayus; /* time to enter rddm */
 	void __iomem *base = mhi_cntrl->bhie;
 

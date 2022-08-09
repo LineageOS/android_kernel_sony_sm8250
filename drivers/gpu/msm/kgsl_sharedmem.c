@@ -473,8 +473,6 @@ static int kgsl_page_alloc_vmfault(struct kgsl_memdesc *memdesc,
 	int pgoff;
 	unsigned int offset;
 	struct page *page;
-	struct kgsl_process_private *priv =
-		((struct kgsl_mem_entry *)vma->vm_private_data)->priv;
 
 	offset = vmf->address - vma->vm_start;
 
@@ -489,6 +487,9 @@ static int kgsl_page_alloc_vmfault(struct kgsl_memdesc *memdesc,
 		get_page(page);
 	}
 	else {
+		struct kgsl_process_private *priv =
+			((struct kgsl_mem_entry *)vma->vm_private_data)->priv;
+
 		/* We are here because page was reclaimed */
 		spin_unlock(&memdesc->lock);
 
