@@ -1091,6 +1091,12 @@ static int dsi_ctrl_copy_and_pad_cmd(struct dsi_ctrl *dsi_ctrl,
 			(cmd_type == MIPI_DSI_GENERIC_READ_REQUEST_2_PARAM))
 		buf[3] |= BIT(5);
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	if (((buf[2] & 0x3f) == MIPI_DSI_GENERIC_READ_REQUEST_0_PARAM) ||
+		((buf[2] & 0x3f) == MIPI_DSI_GENERIC_READ_REQUEST_1_PARAM) ||
+		((buf[2] & 0x3f) == MIPI_DSI_GENERIC_READ_REQUEST_2_PARAM))
+		buf[3] |= BIT(5);
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 	*buffer = buf;
 	*size = len;
 

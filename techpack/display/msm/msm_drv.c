@@ -48,6 +48,10 @@
 #include "sde_wb.h"
 #include "sde_dbg.h"
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+#include "dsi/dsi_panel_driver.h"
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
+
 /*
  * MSM driver version:
  * - 1.0.0 - initial interface
@@ -826,6 +830,10 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
 	}
 
 	drm_kms_helper_poll_init(ddev);
+
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	incell_driver_init(priv);
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 
 	return 0;
 
@@ -2060,7 +2068,9 @@ static void msm_pdev_shutdown(struct platform_device *pdev)
 		return;
 	}
 
-	msm_lastclose(ddev);
+	/* We can get stuck there, skip.
+	 * msm_lastclose(ddev);
+	 */
 
 	/* set this after lastclose to allow kickoff from lastclose */
 	priv->shutdown_in_progress = true;

@@ -21,6 +21,10 @@
 #include "sde_dbg.h"
 #include "dsi_parser.h"
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+#include "dsi_panel_driver.h"
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
+
 #define to_dsi_display(x) container_of(x, struct dsi_display, host)
 #define INT_BASE_10 10
 
@@ -41,9 +45,20 @@ static struct dsi_display_boot_param boot_displays[MAX_DSI_ACTIVE_DISPLAY] = {
 };
 
 static const struct of_device_id dsi_display_dt_match[] = {
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	{.compatible = "somc,dsi-display"},
+#else
 	{.compatible = "qcom,dsi-display"},
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 	{}
 };
+
+static struct dsi_display *main_display;
+
+struct dsi_display *dsi_display_get_main_display(void)
+{
+	return main_display;
+}
 
 static void dsi_display_mask_ctrl_error_interrupts(struct dsi_display *display,
 			u32 mask, bool enable)
@@ -229,6 +244,10 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 		goto error;
 	}
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	dsi_panel_driver_panel_update_area(panel, (u32)bl_temp);
+#endif  /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
+
 	rc = dsi_panel_set_backlight(panel, (u32)bl_temp);
 	if (rc)
 		DSI_ERR("unable to set backlight\n");
@@ -246,7 +265,11 @@ error:
 	return rc;
 }
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+int dsi_display_cmd_engine_enable(struct dsi_display *display)
+#else
 static int dsi_display_cmd_engine_enable(struct dsi_display *display)
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 {
 	int rc = 0;
 	int i;
@@ -290,7 +313,11 @@ done:
 	return rc;
 }
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+int dsi_display_cmd_engine_disable(struct dsi_display *display)
+#else
 static int dsi_display_cmd_engine_disable(struct dsi_display *display)
+#endif  /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 {
 	int rc = 0;
 	int i;
@@ -3792,6 +3819,14 @@ static int dsi_display_res_init(struct dsi_display *display)
 			goto error_ctrl_put;
 		}
 	}
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	rc = dsi_panel_driver_create_fs(display);
+	if (rc) {
+		pr_err("%s: failed dsi_panel_driver_create_fs rc=%d\n",
+				__func__, rc);
+		return rc;
+	}
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 
 	display->panel = dsi_panel_get(&display->pdev->dev,
 				display->panel_node,
@@ -3813,6 +3848,16 @@ static int dsi_display_res_init(struct dsi_display *display)
 		phy->cfg.phy_type =
 			display->panel->host_config.phy_type;
 	}
+
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	pr_notice("%s: Panel Name = %s\n", __func__, display->panel->name);
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
+
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	if (display->boot_disp->boot_disp_en)
+		display->panel->spec_pdata->display_onoff_state = true;
+	dsi_panel_driver_oled_short_det_init_works(display);
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 
 	rc = dsi_display_parse_lane_map(display);
 	if (rc) {
@@ -5317,6 +5362,10 @@ static int dsi_display_init(struct dsi_display *display)
 		goto end;
 	}
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	dsi_panel_driver_init_area_count(display->panel);
+#endif  /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
+
 	rc = component_add(&pdev->dev, &dsi_display_comp_ops);
 	if (rc)
 		DSI_ERR("component add failed, rc=%d\n", rc);
@@ -5417,6 +5466,10 @@ int dsi_display_dev_probe(struct platform_device *pdev)
 	display->pdev = pdev;
 	display->boot_disp = boot_disp;
 
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	main_display = display;
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
+
 	dsi_display_parse_cmdline_topology(display, index);
 
 	platform_set_drvdata(pdev, display);
@@ -5477,6 +5530,10 @@ int dsi_display_dev_remove(struct platform_device *pdev)
 			ctrl->ctrl->dma_cmd_workq = NULL;
 		}
 	}
+
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+	dsi_panel_driver_deinit_area_count(display->panel);
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 
 	(void)_dsi_display_dev_deinit(display);
 
@@ -7693,10 +7750,19 @@ int dsi_display_post_enable(struct dsi_display *display)
 		if (display->config.panel_mode == DSI_OP_VIDEO_MODE)
 			dsi_panel_mode_switch_to_vid(display->panel);
 	} else {
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+		if (!display->panel->spec_pdata->display_onoff_state) {
+			rc = dsi_panel_post_enable(display->panel);
+			if (rc)
+				pr_err("[%s] panel post-enable failed, rc=%d\n",
+						display->name, rc);
+		}
+#else
 		rc = dsi_panel_post_enable(display->panel);
 		if (rc)
 			DSI_ERR("[%s] panel post-enable failed, rc=%d\n",
 				display->name, rc);
+#endif
 	}
 
 	/* remove the clk vote for CMD mode panels */

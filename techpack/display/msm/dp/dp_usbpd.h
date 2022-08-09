@@ -61,4 +61,8 @@ struct dp_usbpd {
 struct dp_hpd *dp_usbpd_get(struct device *dev, struct dp_hpd_cb *cb);
 
 void dp_usbpd_put(struct dp_hpd *pd);
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+
+void dp_usbpd_set_min_src_caps(struct dp_hpd *dp_hpd, const bool set);
+#endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 #endif /* _DP_USBPD_H_ */

@@ -3346,7 +3346,7 @@ struct dp_panel *dp_panel_get(struct dp_panel_in *in)
 	panel->parser = in->parser;
 
 	dp_panel = &panel->dp_panel;
-	dp_panel->max_bw_code = DP_LINK_BW_8_1;
+	dp_panel->max_bw_code = DP_LINK_BW_5_4;
 	dp_panel->spd_enabled = true;
 	memcpy(panel->spd_vendor_name, vendor_name, (sizeof(u8) * 8));
 	memcpy(panel->spd_product_description, product_desc, (sizeof(u8) * 16));
