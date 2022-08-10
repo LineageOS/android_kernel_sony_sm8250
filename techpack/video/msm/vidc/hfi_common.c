@@ -2898,6 +2898,15 @@ static int __check_core_registered(struct hal_device_data core,
 	return -EINVAL;
 }
 
+static void venus_hfi_crash_reason(struct hfi_sfr_struct *vsfr)
+{
+	char msg[SUBSYS_CRASH_REASON_LEN];
+
+	snprintf(msg, sizeof(msg), "SFR Message from FW : %s",
+						vsfr->rg_data);
+	subsystem_crash_reason("venus", msg);
+}
+
 static void __process_fatal_error(
 		struct venus_hfi_device *device)
 {
@@ -2931,6 +2940,7 @@ static void venus_hfi_pm_handler(struct work_struct *work)
 	int rc = 0;
 	struct venus_hfi_device *device = list_first_entry(
 			&hal_ctxt.dev_head, struct venus_hfi_device, list);
+	char msg[SUBSYS_CRASH_REASON_LEN];
 
 	if (!device) {
 		d_vpr_e("%s: NULL device\n", __func__);
@@ -2946,6 +2956,9 @@ static void venus_hfi_pm_handler(struct work_struct *work)
 		d_vpr_e("Failed to PC for %d times\n",
 				device->skip_pc_count);
 		device->skip_pc_count = 0;
+		snprintf(msg, sizeof(msg),
+			"Failed to prepare for PC, rc : %d\n", rc);
+		subsystem_crash_reason("venus", msg);
 		__process_fatal_error(device);
 		return;
 	}
@@ -3096,6 +3109,7 @@ static void print_sfr_message(struct venus_hfi_device *device)
 			vsfr->rg_data[vsfr_size - 1] = '\0';
 
 		d_vpr_e("SFR Message from FW: %s\n", vsfr->rg_data);
+		venus_hfi_crash_reason(vsfr);
 	}
 }
 
