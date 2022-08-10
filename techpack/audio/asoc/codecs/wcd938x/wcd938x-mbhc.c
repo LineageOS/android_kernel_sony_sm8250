@@ -400,7 +400,7 @@ static inline void wcd938x_mbhc_get_result_params(struct wcd938x_priv *wcd938x,
 	if ((c1 < 2) && x1)
 		usleep_range(5000, 5050);
 
-	if (!c1 || !x1) {
+	if (!c1) {
 		dev_dbg(wcd938x->dev,
 			"%s: Impedance detect ramp error, c1=%d, x1=0x%x\n",
 			__func__, c1, x1);

@@ -44,6 +44,11 @@
 
 #define SESSION_TYPE_RX 0
 
+#ifdef CONFIG_FORCE_24BIT_COPP
+#define APPTYPE_GENERAL_PLAYBACK 0x00011130
+#define APPTYPE_SYSTEM_SOUNDS 0x00011131
+#endif
+
 /* ENUM for adm_status */
 enum adm_cal_status {
 	ADM_STATUS_CALIBRATION_REQUIRED = 0,
@@ -3041,6 +3046,16 @@ int adm_open(int port_id, int path, int rate, int channel_mode, int topology,
 		 __func__, port_id, path, rate, channel_mode, perf_mode,
 		 topology);
 
+#ifdef CONFIG_FORCE_24BIT_COPP
+	if (((topology == ADM_CMD_COPP_OPENOPOLOGY_ID_SPEAKER_RX_MCH_IIR_COPP_MBDRC_V3) ||
+		(topology == ADM_CMD_COPP_OPENOPOLOGY_ID_SPEAKER_RX_MCH_FIR_IIR_COPP_MBDRC_V3) ||
+		(topology == ADM_CMD_COPP_OPENOPOLOGY_ID_AUDIO_RX_SONY_SPEAKER)) &&
+                ((app_type == APPTYPE_GENERAL_PLAYBACK) || (app_type == APPTYPE_SYSTEM_SOUNDS))) {
+		bit_width = 24;
+		pr_debug("%s: Force open adm in 24-bit for SOMC Speaker topology 0x%x\n",
+			__func__, topology);
+	}
+#endif
 	port_id = q6audio_convert_virtual_to_portid(port_id);
 	port_idx = adm_validate_and_get_port_index(port_id);
 	if (port_idx < 0) {
@@ -5488,6 +5503,490 @@ done:
 	return ret;
 }
 EXPORT_SYMBOL(adm_get_doa_tracking_mon);
+
+int adm_set_rampup_clipper(int port_id, int copp_idx, uint32_t enable,
+				uint32_t module_id)
+{
+	struct audproc_enable_rampup_clipper_module clipper_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable: %d\n", __func__, enable);
+
+	memset(&clipper_enable, 0, sizeof(clipper_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = module_id;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_RAMP_UP_CLIPPER_ENABLE;
+	param_hdr.param_size = sizeof(clipper_enable);
+
+	clipper_enable.num_channels = 2;
+	clipper_enable.clipper_enable_left = 0;
+	clipper_enable.clipper_enable_right = 0;
+	clipper_enable.gain_fade_in_enable_left = enable;
+	clipper_enable.gain_fade_in_enable_right = 0;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &clipper_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set rampup clipper, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_rampup_clipper);
+
+int adm_set_input_volume(int port_id, int copp_idx,
+					uint32_t volume_l, uint32_t volume_r)
+{
+	struct audproc_volume_params audproc_vol;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: volume_l %d volume_r %d\n", __func__, volume_l, volume_r);
+
+	memset(&audproc_vol, 0, sizeof(audproc_vol));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_VOLUME_LIMITER;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_VOLUME_CTRL;
+	param_hdr.param_size = sizeof(audproc_vol);
+
+	audproc_vol.volume_l = volume_l;
+	audproc_vol.volume_r = volume_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_vol);
+
+	if (rc)
+		pr_err("%s: Failed to set input volume, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_input_volume);
+
+int adm_set_beat_bass_input_volume(int port_id, int copp_idx,
+					uint32_t volume_l, uint32_t volume_r)
+{
+	struct audproc_volume_params audproc_vol;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: volume_l %d volume_r %d\n", __func__, volume_l, volume_r);
+
+	memset(&audproc_vol, 0, sizeof(audproc_vol));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_VOLUME_LIMITER_1;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_VOLUME_CTRL;
+	param_hdr.param_size = sizeof(audproc_vol);
+
+	audproc_vol.volume_l = volume_l;
+	audproc_vol.volume_r = volume_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_vol);
+
+	if (rc)
+		pr_err("%s: Failed to set BEAT/BASS input volume, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_beat_bass_input_volume);
+
+int adm_set_beat_bass_output_volume(int port_id, int copp_idx,
+					uint32_t volume_l, uint32_t volume_r)
+{
+	struct audproc_volume_params audproc_vol;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: volume_l %d volume_r %d\n", __func__, volume_l, volume_r);
+
+	memset(&audproc_vol, 0, sizeof(audproc_vol));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_VOLUME_LIMITER_4;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_VOLUME_CTRL;
+	param_hdr.param_size = sizeof(audproc_vol);
+
+	audproc_vol.volume_l = volume_l;
+	audproc_vol.volume_r = volume_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_vol);
+
+	if (rc)
+		pr_err("%s: Failed to set BEAT/BASS out volume, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_beat_bass_output_volume);
+
+int adm_set_level_volume(int port_id, int copp_idx,
+					uint32_t volume_l, uint32_t volume_r)
+{
+	struct audproc_volume_params audproc_vol;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: volume_l %d volume_r %d\n", __func__, volume_l, volume_r);
+
+	memset(&audproc_vol, 0, sizeof(audproc_vol));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_VOLUME_LIMITER_6;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_VOLUME_CTRL;
+	param_hdr.param_size = sizeof(audproc_vol);
+
+	audproc_vol.volume_l = volume_l;
+	audproc_vol.volume_r = volume_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_vol);
+
+	if (rc)
+		pr_err("%s: Failed to set level volume, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_level_volume);
+
+int adm_set_hpf_a(int port_id, int copp_idx,
+					uint32_t enable_l, uint32_t enable_r)
+{
+	struct audproc_enable_module_mchan_iir audproc_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable_l %d enable_r %d\n", __func__, enable_l, enable_r);
+
+	memset(&audproc_enable, 0, sizeof(audproc_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_MCHAN_IIR_2;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_MCHAN_IIR_ENABLE;
+	param_hdr.param_size = sizeof(audproc_enable);
+
+	audproc_enable.num_channels = 2;
+	audproc_enable.enable_flag_settings[0].channel_type = PCM_CHANNEL_L;
+	audproc_enable.enable_flag_settings[0].enable_flag = enable_l;
+	audproc_enable.enable_flag_settings[1].channel_type = PCM_CHANNEL_R;
+	audproc_enable.enable_flag_settings[1].enable_flag = enable_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set HPF A enable, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_hpf_a);
+
+int adm_set_hpf_b(int port_id, int copp_idx,
+					uint32_t enable_l, uint32_t enable_r)
+{
+	struct audproc_enable_module_mchan_iir audproc_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable_l %d enable_r %d\n", __func__, enable_l, enable_r);
+
+	memset(&audproc_enable, 0, sizeof(audproc_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_MCHAN_IIR_3;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_MCHAN_IIR_ENABLE;
+	param_hdr.param_size = sizeof(audproc_enable);
+
+	audproc_enable.num_channels = 2;
+	audproc_enable.enable_flag_settings[0].channel_type = PCM_CHANNEL_L;
+	audproc_enable.enable_flag_settings[0].enable_flag = enable_l;
+	audproc_enable.enable_flag_settings[1].channel_type = PCM_CHANNEL_R;
+	audproc_enable.enable_flag_settings[1].enable_flag = enable_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set HPF B enable, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_hpf_b);
+
+int adm_set_log10(int port_id, int copp_idx,
+					uint32_t enable_l, uint32_t enable_r)
+{
+	struct audproc_enable_module_stereo audproc_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable_l %d enable_r %d\n", __func__, enable_l, enable_r);
+
+	memset(&audproc_enable, 0, sizeof(audproc_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_LOG10;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_LOG10_ENABLE;
+	param_hdr.param_size = sizeof(audproc_enable);
+
+	audproc_enable.num_channels = 2;
+	audproc_enable.enable[0] = enable_l;
+	audproc_enable.enable[1] = enable_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set Log10 enable, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_log10);
+
+int adm_set_add1(int port_id, int copp_idx,
+					uint32_t enable_l, uint32_t enable_r)
+{
+	struct audproc_enable_module_stereo audproc_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable_l %d enable_r %d\n", __func__, enable_l, enable_r);
+
+	memset(&audproc_enable, 0, sizeof(audproc_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_ADD1;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_ADD1_ENABLE;
+	param_hdr.param_size = sizeof(audproc_enable);
+
+	audproc_enable.num_channels = 2;
+	audproc_enable.enable[0] = enable_l;
+	audproc_enable.enable[1] = enable_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set Add1 enable, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_add1);
+
+int adm_set_addx(int port_id, int copp_idx,
+					uint32_t enable_l, uint32_t enable_r)
+{
+	struct audproc_enable_module_stereo audproc_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable_l %d enable_r %d\n", __func__, enable_l, enable_r);
+
+	memset(&audproc_enable, 0, sizeof(audproc_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_ADDX;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_ADDX_ENABLE;
+	param_hdr.param_size = sizeof(audproc_enable);
+
+	audproc_enable.num_channels = 2;
+	audproc_enable.enable[0] = enable_l;
+	audproc_enable.enable[1] = enable_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set AddX enable, err %d\n", __func__, rc);
+
+	return rc;
+}
+
+EXPORT_SYMBOL(adm_set_addx);
+int adm_set_negative_cut(int port_id, int copp_idx,
+					uint32_t enable_l, uint32_t enable_r)
+{
+	struct audproc_enable_module_stereo audproc_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable_l %d enable_r %d\n", __func__, enable_l, enable_r);
+
+	memset(&audproc_enable, 0, sizeof(audproc_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_NEGATIVE_CUT;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_NEGATIVE_CUT_ENABLE;
+	param_hdr.param_size = sizeof(audproc_enable);
+
+	audproc_enable.num_channels = 2;
+	audproc_enable.enable[0] = enable_l;
+	audproc_enable.enable[1] = enable_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set Negative Cut enable, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_negative_cut);
+
+int adm_set_inverse_volume(int port_id, int copp_idx,
+					uint32_t volume_l, uint32_t volume_r)
+{
+	struct audproc_inverse_audio_volume_params audproc_invol;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: volume_l %d volume_r %d\n", __func__, volume_l, volume_r);
+
+	memset(&audproc_invol, 0, sizeof(audproc_invol));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_INV_VOL_CTRL;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_INV_VOL_CTRL;
+	param_hdr.param_size = sizeof(audproc_invol);
+
+	audproc_invol.volume_l = volume_l;
+	audproc_invol.volume_r = volume_r;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &audproc_invol);
+
+	if (rc)
+		pr_err("%s: Failed to set inverse volume, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_inverse_volume);
+
+int adm_set_delay_module_state(int port_id, int copp_idx, uint32_t enable)
+{
+	struct audproc_enable_module_stereo delay_enable;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable: %d\n", __func__, enable);
+
+	memset(&delay_enable, 0, sizeof(delay_enable));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+	param_hdr.module_id = AUDPROC_MODULE_ID_DELAY;
+	param_hdr.instance_id = INSTANCE_ID_0;
+	param_hdr.param_id = AUDPROC_PARAM_ID_DELAY_ENABLE;
+	param_hdr.param_size = sizeof(delay_enable);
+
+	delay_enable.num_channels = 2;
+	delay_enable.enable[0] = enable;
+	delay_enable.enable[1] = enable;
+
+	rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+					   (uint8_t *) &delay_enable);
+
+	if (rc)
+		pr_err("%s: Failed to set delay module state, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_delay_module_state);
+
+int adm_set_all_bex_modules(int port_id, int copp_idx,
+				uint32_t module_id, uint32_t param_id, uint32_t enable_flag)
+{
+	struct audproc_enable_module_mono audproc_enable_mono;
+	struct audproc_enable_module_stereo audproc_enable_stereo;
+	struct audproc_enable_module_mchan_iir audproc_enable_mchan_iir;
+	struct param_hdr_v3 param_hdr;
+	int rc  = 0;
+
+	pr_debug("%s: enable_flag: %d\n", __func__, enable_flag);
+
+	memset(&audproc_enable_mono, 0, sizeof(audproc_enable_mono));
+	memset(&audproc_enable_stereo, 0, sizeof(audproc_enable_stereo));
+	memset(&audproc_enable_mchan_iir, 0, sizeof(audproc_enable_mchan_iir));
+	memset(&param_hdr, 0, sizeof(param_hdr));
+
+	switch(module_id) {
+	case AUDPROC_MODULE_ID_LOG10GAIN:
+	case AUDPROC_MODULE_ID_NOISE_CUT:
+	case AUDPROC_MODULE_ID_NEGATIVE_CUT:
+	case AUDPROC_MODULE_ID_VOLUME_LIMITER:
+	case AUDPROC_MODULE_ID_VOLUME_LIMITER_1:
+	case AUDPROC_MODULE_ID_VOLUME_LIMITER_2:
+	case AUDPROC_MODULE_ID_VOLUME_LIMITER_3:
+	case AUDPROC_MODULE_ID_VOLUME_LIMITER_4:
+	case AUDPROC_MODULE_ID_VOLUME_LIMITER_5:
+	case AUDPROC_MODULE_ID_VOLUME_LIMITER_6:
+	case AUDPROC_MODULE_ID_LOG10:
+	case AUDPROC_MODULE_ID_ABS:
+	case AUDPROC_MODULE_ID_ADD1:
+	case AUDPROC_MODULE_ID_ADDX:
+	case AUDPROC_MODULE_ID_INV_VOL_CTRL: {
+		param_hdr.module_id = module_id;
+		param_hdr.instance_id = INSTANCE_ID_0;
+		param_hdr.param_id = param_id;
+		param_hdr.param_size = sizeof(audproc_enable_stereo);
+
+		audproc_enable_stereo.num_channels = 2;
+		audproc_enable_stereo.enable[0] = enable_flag;
+		audproc_enable_stereo.enable[1] = enable_flag;
+
+		rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+						   (uint8_t *) &audproc_enable_stereo);
+		break;
+	}
+
+	case AUDPROC_MODULE_ID_DUAL_MONO:
+	case AUDPROC_MODULE_ID_DUAL_MONO1: {
+		param_hdr.module_id = module_id;
+		param_hdr.instance_id = INSTANCE_ID_0;
+		param_hdr.param_id = param_id;
+		param_hdr.param_size = sizeof(audproc_enable_mono);
+
+		audproc_enable_mono.enable_flag = enable_flag;
+
+		rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+						   (uint8_t *) &audproc_enable_mono);
+		break;
+	}
+	case AUDPROC_MODULE_ID_MCHAN_IIR_1:
+	case AUDPROC_MODULE_ID_MCHAN_IIR_2:
+	case AUDPROC_MODULE_ID_MCHAN_IIR_3:
+	case AUDPROC_MODULE_ID_MCHAN_IIR_4:
+	case AUDPROC_MODULE_ID_MCHAN_IIR_5: {
+
+		param_hdr.module_id = module_id;
+		param_hdr.instance_id = INSTANCE_ID_0;
+		param_hdr.param_id = AUDPROC_PARAM_ID_MCHAN_IIR_ENABLE;
+		param_hdr.param_size = sizeof(audproc_enable_mchan_iir);
+
+		audproc_enable_mchan_iir.num_channels = 2;
+		audproc_enable_mchan_iir.enable_flag_settings[0].channel_type = PCM_CHANNEL_L;
+		audproc_enable_mchan_iir.enable_flag_settings[0].enable_flag = enable_flag;
+		audproc_enable_mchan_iir.enable_flag_settings[1].channel_type = PCM_CHANNEL_R;
+		audproc_enable_mchan_iir.enable_flag_settings[1].enable_flag =
+			module_id != AUDPROC_MODULE_ID_MCHAN_IIR_5 ? enable_flag : 0;
+
+		rc = adm_pack_and_set_one_pp_param(port_id, copp_idx, param_hdr,
+						   (uint8_t *) &audproc_enable_mchan_iir);
+		break;
+	}
+	default:
+		pr_err("%s: unhandled module id: %x\n", __func__, module_id);
+		rc = -EINVAL;
+		break;
+	}
+
+	if (rc)
+		pr_err("%s: Failed to set all bex modules, err %d\n", __func__, rc);
+
+	return rc;
+}
+EXPORT_SYMBOL(adm_set_all_bex_modules);
 
 int __init adm_init(void)
 {

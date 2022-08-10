@@ -231,4 +231,33 @@ void adm_set_native_mode(int mode);
 int adm_set_ffecns_freeze_event(bool ffecns_freeze_event);
 int adm_apr_send_pkt(void *data, wait_queue_head_t *wait,
 			int port_idx, int copp_idx, int opcode);
+int adm_set_rampup_clipper(int port_id, int copp_idx, uint32_t enable,
+				uint32_t module_id);
+
+int adm_set_input_volume(int port_id, int copp_idx,
+				uint32_t volume_l, uint32_t volume_r);
+int adm_set_beat_bass_input_volume(int port_id, int copp_idx,
+				uint32_t volume_l, uint32_t volume_r);
+int adm_set_beat_bass_output_volume(int port_id, int copp_idx,
+				uint32_t volume_l, uint32_t volume_r);
+int adm_set_level_volume(int port_id, int copp_idx,
+				uint32_t volume_l, uint32_t volume_r);
+int adm_set_hpf_a(int port_id, int copp_idx,
+				uint32_t enable_l, uint32_t enable_r);
+int adm_set_hpf_b(int port_id, int copp_idx,
+				uint32_t enable_l, uint32_t enable_r);
+int adm_set_log10(int port_id, int copp_idx,
+				uint32_t enable_l, uint32_t enable_r);
+int adm_set_add1(int port_id, int copp_idx,
+				uint32_t enable_l, uint32_t enable_r);
+int adm_set_addx(int port_id, int copp_idx,
+				uint32_t enable_l, uint32_t enable_r);
+int adm_set_negative_cut(int port_id, int copp_idx,
+				uint32_t enable_l, uint32_t enable_r);
+int adm_set_inverse_volume(int port_id, int copp_idx,
+				uint32_t volume_l, uint32_t volume_r);
+int adm_set_delay_module_state(int port_id, int copp_idx, uint32_t enable);
+
+int adm_set_all_bex_modules(int port_id, int copp_idx,
+				uint32_t module_id, uint32_t param_id, uint32_t enable_flag);
 #endif /* __Q6_ADM_V2_H__ */
