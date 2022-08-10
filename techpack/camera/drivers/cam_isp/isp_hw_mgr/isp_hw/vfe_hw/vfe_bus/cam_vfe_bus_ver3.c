@@ -3335,13 +3335,21 @@ static int cam_vfe_bus_ver3_update_ubwc_config_v2(void *cmd_args)
 			goto end;
 		}
 
+/* sony extension begin */
+#if 0
 		if (wm_data->packer_cfg !=
 			ubwc_generic_plane_cfg->packer_config ||
 			!wm_data->init_cfg_done) {
+#endif
+/* sony extension end */
 			wm_data->packer_cfg =
 				ubwc_generic_plane_cfg->packer_config;
 			wm_data->ubwc_updated = true;
+/* sony extension begin */
+#if 0
 		}
+#endif
+/* sony extension end */
 
 		if ((!wm_data->is_dual) && ((wm_data->h_init !=
 			ubwc_generic_plane_cfg->h_init) ||
@@ -3358,13 +3366,21 @@ static int cam_vfe_bus_ver3_update_ubwc_config_v2(void *cmd_args)
 			wm_data->ubwc_updated = true;
 		}
 
+/* sony extension begin */
+#if 0
 		if (wm_data->ubwc_mode_cfg !=
 			ubwc_generic_plane_cfg->mode_config_0 ||
 			!wm_data->init_cfg_done) {
+#endif
+/* sony extension end */
 			wm_data->ubwc_mode_cfg =
 				ubwc_generic_plane_cfg->mode_config_0;
 			wm_data->ubwc_updated = true;
+/* sony extension begin */
+#if 0
 		}
+#endif
+/* sony extension end */
 
 		if (wm_data->ubwc_ctrl_2 !=
 			ubwc_generic_plane_cfg->ctrl_2 ||

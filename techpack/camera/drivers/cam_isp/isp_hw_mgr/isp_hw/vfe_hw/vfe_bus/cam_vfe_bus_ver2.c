@@ -1360,12 +1360,26 @@ static int cam_vfe_bus_err_bottom_half(void *handler_priv,
 	struct cam_vfe_bus_ver2_common_data *common_data;
 	struct cam_isp_hw_event_info evt_info;
 	uint32_t val = 0;
+/* sony extension begin */
+	uint32_t  *cam_ife_irq_regs = NULL;
+/* sony extension end */
 
 	if (!handler_priv || !evt_payload_priv)
 		return -EINVAL;
 
 	evt_payload = evt_payload_priv;
 	common_data = &bus_priv->common_data;
+
+/* sony extension begin */
+	cam_ife_irq_regs = evt_payload->irq_reg_val;
+	CAM_DBG(CAM_ISP, "status0 0x%x status1 0x%x status2 0x%x",
+		cam_ife_irq_regs[CAM_IFE_IRQ_BUS_REG_STATUS0],
+		cam_ife_irq_regs[CAM_IFE_IRQ_BUS_REG_STATUS1],
+		cam_ife_irq_regs[CAM_IFE_IRQ_BUS_REG_STATUS2]);
+	cam_ife_irq_regs[CAM_IFE_IRQ_BUS_REG_STATUS0] &= ~bus_error_irq_mask[0];
+	cam_ife_irq_regs[CAM_IFE_IRQ_BUS_REG_STATUS1] &= ~bus_error_irq_mask[1];
+	cam_ife_irq_regs[CAM_IFE_IRQ_BUS_REG_STATUS2] &= ~bus_error_irq_mask[2];
+/* sony extension end */
 
 	val = evt_payload->debug_status_0;
 	CAM_ERR(CAM_ISP, "Bus Violation: debug_status_0 = 0x%x", val);
@@ -2877,8 +2891,14 @@ static int cam_vfe_bus_update_wm(void *priv, void *cmd_args,
 				io_cfg->planes[i].plane_stride,
 				val);
 
+/* sony extension begin */
+#if 1
+		if ((wm_data->index >= 3)) {
+#else
 		if ((wm_data->stride != val ||
 			!wm_data->init_cfg_done) && (wm_data->index >= 3)) {
+#endif
+/* sony extension end */
 			CAM_VFE_ADD_REG_VAL_PAIR(reg_val_pair, j,
 				wm_data->hw_regs->stride,
 				io_cfg->planes[i].plane_stride);
@@ -3137,19 +3157,35 @@ static int cam_vfe_bus_update_ubwc_config(void *cmd_args)
 			goto end;
 		}
 
+/* sony extension begin */
+#if 0
 		if (wm_data->packer_cfg !=
 			ubwc_plane_cfg->packer_config ||
 			!wm_data->init_cfg_done) {
+#endif
+/* sony extension end */
 			wm_data->packer_cfg = ubwc_plane_cfg->packer_config;
 			wm_data->ubwc_updated = true;
+/* sony extension begin */
+#if 0
 		}
+#endif
+/* sony extension end */
 
+/* sony extension begin */
+#if 0
 		if ((!wm_data->is_dual) && ((wm_data->tile_cfg !=
 			ubwc_plane_cfg->tile_config)
 			|| !wm_data->init_cfg_done)) {
+#endif
+/* sony extension end */
 			wm_data->tile_cfg = ubwc_plane_cfg->tile_config;
 			wm_data->ubwc_updated = true;
+/* sony extension begin */
+#if 0
 		}
+#endif
+/* sony extension end */
 
 		if ((!wm_data->is_dual) && ((wm_data->h_init !=
 			ubwc_plane_cfg->h_init) ||
@@ -3164,28 +3200,52 @@ static int cam_vfe_bus_update_ubwc_config(void *cmd_args)
 			wm_data->ubwc_updated = true;
 		}
 
+/* sony extension begin */
+#if 0
 		if (wm_data->ubwc_meta_stride !=
 			ubwc_plane_cfg->meta_stride ||
 			!wm_data->init_cfg_done) {
+#endif
+/* sony extension end */
 			wm_data->ubwc_meta_stride = ubwc_plane_cfg->meta_stride;
 			wm_data->ubwc_updated = true;
+/* sony extension begin */
+#if 0
 		}
+#endif
+/* sony extension end */
 
+/* sony extension begin */
+#if 0
 		if (wm_data->ubwc_mode_cfg_0 !=
 			ubwc_plane_cfg->mode_config_0 ||
 			!wm_data->init_cfg_done) {
+#endif
+/* sony extension end */
 			wm_data->ubwc_mode_cfg_0 =
 				ubwc_plane_cfg->mode_config_0;
 			wm_data->ubwc_updated = true;
+/* sony extension begin */
+#if 0
 		}
+#endif
+/* sony extension end */
 
+/* sony extension begin */
+#if 0
 		if (wm_data->ubwc_mode_cfg_1 !=
 			ubwc_plane_cfg->mode_config_1 ||
 			!wm_data->init_cfg_done) {
+#endif
+/* sony extension end */
 			wm_data->ubwc_mode_cfg_1 =
 				ubwc_plane_cfg->mode_config_1;
 			wm_data->ubwc_updated = true;
+/* sony extension begin */
+#if 0
 		}
+#endif
+/* sony extension end */
 
 		if (wm_data->ubwc_meta_offset !=
 			ubwc_plane_cfg->meta_offset ||

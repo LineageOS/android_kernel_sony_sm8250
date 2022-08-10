@@ -172,6 +172,9 @@ struct cam_ife_hw_mgr_ctx {
 	atomic_t                        overflow_pending;
 	atomic_t                        cdm_done;
 	uint32_t                        is_rdi_only_context;
+/* sony extension begin */
+	uint32_t                        int_rdi_res_id;
+/* sony extension end */
 	struct completion               config_done_complete;
 	struct cam_cmd_buf_desc         reg_dump_buf_desc[
 						CAM_REG_DUMP_MAX_BUF_ENTRIES];

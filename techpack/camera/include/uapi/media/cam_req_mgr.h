@@ -42,7 +42,13 @@
  */
 #define CAM_REQ_MGR_MAX_HANDLES           64
 #define CAM_REQ_MGR_MAX_HANDLES_V2        128
+/* sony extension begin */
+#if 1
+#define MAX_LINKS_PER_SESSION             4
+#else
 #define MAX_LINKS_PER_SESSION             2
+#endif
+/* sony extension end */
 
 /* V4L event type which user space will subscribe to */
 #define V4L_EVENT_CAM_REQ_MGR_EVENT       (V4L2_EVENT_PRIVATE_START + 0)

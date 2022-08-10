@@ -26,6 +26,8 @@ struct v4l2_subdev *cam_cci_get_subdev(int cci_dev_index)
 	return sub_device;
 }
 
+EXPORT_SYMBOL(cam_cci_get_subdev);
+
 static long cam_cci_subdev_ioctl(struct v4l2_subdev *sd,
 	unsigned int cmd, void *arg)
 {
@@ -403,8 +405,7 @@ static int cam_cci_platform_probe(struct platform_device *pdev)
 		sizeof(new_cci_dev->device_name));
 	new_cci_dev->v4l2_dev_str.name =
 		new_cci_dev->device_name;
-	new_cci_dev->v4l2_dev_str.sd_flags =
-		(V4L2_SUBDEV_FL_HAS_DEVNODE | V4L2_SUBDEV_FL_HAS_EVENTS);
+	new_cci_dev->v4l2_dev_str.sd_flags = V4L2_SUBDEV_FL_HAS_EVENTS;
 	new_cci_dev->v4l2_dev_str.ent_function =
 		CAM_CCI_DEVICE_TYPE;
 	new_cci_dev->v4l2_dev_str.token =

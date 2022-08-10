@@ -124,9 +124,19 @@ int cam_mem_mgr_init(void)
 	memset(tbl.bufq, 0, sizeof(tbl.bufq));
 
 	bitmap_size = BITS_TO_LONGS(CAM_MEM_BUFQ_MAX) * sizeof(long);
+/* sony extension begin */
+#if 1
+	if (!tbl.bitmap) {
+		tbl.bitmap = kzalloc(bitmap_size, GFP_KERNEL);
+		if (!tbl.bitmap)
+			return -ENOMEM;
+		}
+#else
 	tbl.bitmap = kzalloc(bitmap_size, GFP_KERNEL);
 	if (!tbl.bitmap)
 		return -ENOMEM;
+#endif
+/* sony extension end */
 
 	tbl.bits = bitmap_size * BITS_PER_BYTE;
 	bitmap_zero(tbl.bitmap, tbl.bits);
@@ -911,8 +921,17 @@ void cam_mem_mgr_deinit(void)
 	cam_mem_mgr_cleanup_table();
 	mutex_lock(&tbl.m_lock);
 	bitmap_zero(tbl.bitmap, tbl.bits);
+/* sony extension begin */
+#if 1
+	if (tbl.bitmap) {
+		kfree(tbl.bitmap);
+		tbl.bitmap = NULL;
+	}
+#else
 	kfree(tbl.bitmap);
 	tbl.bitmap = NULL;
+#endif
+/* sony extension end */
 	mutex_unlock(&tbl.m_lock);
 	mutex_destroy(&tbl.m_lock);
 }

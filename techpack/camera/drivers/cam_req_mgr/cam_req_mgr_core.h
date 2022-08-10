@@ -13,7 +13,14 @@
 #define CAM_REQ_MGR_MAX_LINKED_DEV     16
 #define MAX_REQ_SLOTS                  48
 
+/* sony extension begin */
+#if 1
+#define CAM_REQ_MGR_WATCHDOG_TIMEOUT       5000
+#else
 #define CAM_REQ_MGR_WATCHDOG_TIMEOUT       1000
+#endif
+/* sony extension end */
+
 #define CAM_REQ_MGR_WATCHDOG_TIMEOUT_MAX   50000
 #define CAM_REQ_MGR_SCHED_REQ_TIMEOUT      1000
 #define CAM_REQ_MGR_SIMULATE_SCHED_REQ     30
@@ -31,7 +38,13 @@
 
 #define SYNC_LINK_SOF_CNT_MAX_LMT 1
 
+/* sony extension begin */
+#if 1
+#define MAXIMUM_LINKS_PER_SESSION  8
+#else
 #define MAXIMUM_LINKS_PER_SESSION  4
+#endif
+/* sony extension end */
 
 #define MAXIMUM_RETRY_ATTEMPTS 3
 

@@ -115,10 +115,28 @@ struct cam_cdm_bl_cb_request_entry *cam_cdm_find_request_by_bl_tag(
 {
 	struct cam_cdm_bl_cb_request_entry *node;
 
+/* sony extension begin */
+#if 1
+	struct cam_cdm_bl_cb_request_entry *node_next;
+
+	list_for_each_entry_safe(node, node_next, bl_list, entry) {
+		if (node->bl_tag == tag) {
+			return node;
+		} else {
+			CAM_ERR(CAM_CDM, "No IRQ took place for bl_tag=%x cookie=%d."
+				" Remove corresponding request from bl_list.",
+				node->bl_tag, node->cookie);
+			list_del_init(&node->entry);
+			kfree(node);
+		}
+	}
+#else
 	list_for_each_entry(node, bl_list, entry) {
 		if (node->bl_tag == tag)
 			return node;
 	}
+#endif
+/* sony extension end */
 	CAM_ERR(CAM_CDM, "Could not find the bl request for tag=%x", tag);
 
 	return NULL;

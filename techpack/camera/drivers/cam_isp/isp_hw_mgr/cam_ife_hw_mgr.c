@@ -1663,7 +1663,14 @@ static int cam_ife_mgr_acquire_cid_res(
 	struct cam_ife_hw_mgr_ctx           *ife_ctx,
 	struct cam_isp_in_port_generic_info *in_port,
 	struct cam_ife_hw_mgr_res          **cid_res,
+/* sony extension begin */
+#if 1
+	enum cam_ife_pix_path_res_id         path_res_id,
+	bool rdi_only)
+#else
 	enum cam_ife_pix_path_res_id         path_res_id)
+#endif
+/* sony extension end */
 {
 	int rc = -1;
 	int i, j;
@@ -1673,6 +1680,9 @@ static int cam_ife_mgr_acquire_cid_res(
 	struct cam_csid_hw_reserve_resource_args  csid_acquire;
 	uint32_t acquired_cnt = 0;
 	struct cam_isp_out_port_generic_info *out_port = NULL;
+/* sony extension begin */
+	int idx = 0;
+/* sony extension end */
 
 	ife_hw_mgr = ife_ctx->hw_mgr;
 	*cid_res = NULL;
@@ -1753,10 +1763,23 @@ static int cam_ife_mgr_acquire_cid_res(
 	/* Acquire Left if not already acquired */
 	if (ife_ctx->is_fe_enable) {
 		for (i = 0; i < CAM_IFE_CSID_HW_NUM_MAX; i++) {
+/* sony extension begin */
+			idx = rdi_only ? (CAM_IFE_CSID_HW_NUM_MAX - 1) - i : i;
+#if 1
+			if (!ife_hw_mgr->csid_devices[idx])
+#else
 			if (!ife_hw_mgr->csid_devices[i])
+#endif
+/* sony extension end */
 				continue;
 
+/* sony extension begin */
+#if 1
+			hw_intf = ife_hw_mgr->csid_devices[idx];
+#else
 			hw_intf = ife_hw_mgr->csid_devices[i];
+#endif
+/* sony extension end */
 			rc = hw_intf->hw_ops.reserve(hw_intf->hw_priv,
 				&csid_acquire, sizeof(csid_acquire));
 			if (rc)
@@ -1885,8 +1908,15 @@ static int cam_ife_hw_mgr_acquire_res_ife_csid_pxl(
 	else
 		path_res_id = CAM_IFE_PIX_PATH_RES_PPP;
 
+/* sony extension begin */
+#if 1
+	rc = cam_ife_mgr_acquire_cid_res(ife_ctx, in_port, &cid_res,
+		path_res_id, false);
+#else
 	rc = cam_ife_mgr_acquire_cid_res(ife_ctx, in_port, &cid_res,
 		path_res_id);
+#endif
+/* sony extension end */
 
 	if (rc) {
 		CAM_ERR(CAM_ISP, "Acquire IFE CID resource Failed");
@@ -2006,7 +2036,14 @@ static enum cam_ife_pix_path_res_id
 
 static int cam_ife_hw_mgr_acquire_res_ife_csid_rdi(
 	struct cam_ife_hw_mgr_ctx           *ife_ctx,
+/* sony extension begin */
+#if 1
+	struct cam_isp_in_port_generic_info *in_port,
+	bool rdi_only)
+#else
 	struct cam_isp_in_port_generic_info *in_port)
+#endif
+/* sony extension end */
 {
 	int rc = -EINVAL;
 	int i;
@@ -2029,8 +2066,15 @@ static int cam_ife_hw_mgr_acquire_res_ife_csid_rdi(
 			continue;
 
 		/* get cid resource */
+/* sony extension begin */
+#if 1
+		rc = cam_ife_mgr_acquire_cid_res(ife_ctx, in_port, &cid_res,
+			path_res_id, rdi_only);
+#else
 		rc = cam_ife_mgr_acquire_cid_res(ife_ctx, in_port, &cid_res,
 			path_res_id);
+#endif
+/* sony extension end */
 		if (rc) {
 			CAM_ERR(CAM_ISP, "Acquire IFE CID resource Failed");
 			goto end;
@@ -2301,7 +2345,14 @@ static int cam_ife_mgr_acquire_hw_for_ctx(
 	struct cam_ife_hw_mgr_ctx           *ife_ctx,
 	struct cam_isp_in_port_generic_info *in_port,
 	uint32_t  *num_pix_port, uint32_t  *num_rdi_port,
+/* sony extension begin */
+#if 1
+	uint32_t *acquired_hw_id, uint32_t *acquired_hw_path,
+	bool rdi_only)
+#else
 	uint32_t *acquired_hw_id, uint32_t *acquired_hw_path)
+#endif
+/* sony extension end */
 {
 	int rc                                    = -1;
 	int is_dual_vfe                           = 0;
@@ -2344,7 +2395,13 @@ static int cam_ife_mgr_acquire_hw_for_ctx(
 
 	if (rdi_count) {
 		/* get ife csid RDI resource */
+/* sony extension begin */
+#if 1
+		rc = cam_ife_hw_mgr_acquire_res_ife_csid_rdi(ife_ctx, in_port, rdi_only);
+#else
 		rc = cam_ife_hw_mgr_acquire_res_ife_csid_rdi(ife_ctx, in_port);
+#endif
+/* sony extension end */
 		if (rc) {
 			CAM_ERR(CAM_ISP,
 				"Acquire IFE CSID RDI resource Failed");
@@ -2687,6 +2744,11 @@ static int cam_ife_mgr_acquire_hw(void *hw_mgr_priv, void *acquire_hw_args)
 	uint32_t                           total_rdi_port = 0;
 	struct cam_isp_acquire_hw_info    *acquire_hw_info = NULL;
 	uint32_t                           input_size = 0;
+/* sony extension begin */
+	bool                                  rdi_only = false;
+	struct cam_isp_out_port_generic_info *out_port = NULL;
+	uint32_t                              int_rdi_res_type = CAM_ISP_IFE_OUT_RES_RDI_3;
+/* sony extension end */
 
 	CAM_DBG(CAM_ISP, "Enter...");
 
@@ -2744,6 +2806,59 @@ static int cam_ife_mgr_acquire_hw(void *hw_mgr_priv, void *acquire_hw_args)
 		goto free_cdm;
 	}
 
+/* sony extension begin */
+	for (i = 0; i < acquire_hw_info->num_inputs; i++) {
+		rc = cam_ife_mgr_acquire_get_unified_structure(acquire_hw_info,
+			i, &input_size, &in_port);
+		if (rc < 0) {
+			CAM_ERR(CAM_ISP, "Failed in parsing: %d", rc);
+			goto free_res;
+		}
+		CAM_DBG(CAM_ISP, "in_res_type %x", in_port->res_type);
+
+		for (j = 0; j < in_port->num_out_res; j++) {
+			out_port = &in_port->data[j];
+			if (cam_ife_hw_mgr_is_rdi_res(out_port->res_type)) {
+				total_rdi_port++;
+				if (out_port->res_type < int_rdi_res_type) {
+					int_rdi_res_type = out_port->res_type;
+				}
+			} else {
+				CAM_DBG(CAM_ISP, "out_res_type %d",
+				out_port->res_type);
+				total_pix_port++;
+			}
+		}
+		kfree(in_port->data);
+		kfree(in_port);
+		in_port = NULL;
+	}
+	if (total_rdi_port > 0 && total_pix_port == 0) {
+		rdi_only = true;
+		switch (int_rdi_res_type) {
+		case CAM_ISP_IFE_OUT_RES_RDI_0:
+			ife_ctx->int_rdi_res_id = CAM_ISP_HW_VFE_IN_RDI0;
+			break;
+		case CAM_ISP_IFE_OUT_RES_RDI_1:
+			ife_ctx->int_rdi_res_id = CAM_ISP_HW_VFE_IN_RDI1;
+			break;
+		case CAM_ISP_IFE_OUT_RES_RDI_2:
+			ife_ctx->int_rdi_res_id = CAM_ISP_HW_VFE_IN_RDI2;
+			break;
+		case CAM_ISP_IFE_OUT_RES_RDI_3:
+			ife_ctx->int_rdi_res_id = CAM_ISP_HW_VFE_IN_RDI3;
+			break;
+		default:
+			ife_ctx->int_rdi_res_id = 0;
+			break;
+		}
+		CAM_DBG(CAM_ISP, "Interrupt RDI res id: %d", ife_ctx->int_rdi_res_id);
+	}
+
+	input_size = 0;
+	total_rdi_port = 0;
+	total_pix_port = 0;
+/* sony extension end */
 	/* acquire HW resources */
 	for (i = 0; i < acquire_hw_info->num_inputs; i++) {
 		rc = cam_ife_mgr_acquire_get_unified_structure(acquire_hw_info,
@@ -2757,8 +2872,14 @@ static int cam_ife_mgr_acquire_hw(void *hw_mgr_priv, void *acquire_hw_args)
 		rc = cam_ife_mgr_acquire_hw_for_ctx(ife_ctx, in_port,
 			&num_pix_port_per_in, &num_rdi_port_per_in,
 			&acquire_args->acquired_hw_id[i],
+/* sony extension begin */
+#if 1
+			acquire_args->acquired_hw_path[i],
+			rdi_only);
+#else
 			acquire_args->acquired_hw_path[i]);
-
+#endif
+/* sony extension end */
 		total_pix_port += num_pix_port_per_in;
 		total_rdi_port += num_rdi_port_per_in;
 
@@ -2875,6 +2996,14 @@ static int cam_ife_mgr_acquire_dev(void *hw_mgr_priv, void *acquire_hw_args)
 	uint32_t                               total_pix_port = 0;
 	uint32_t                               total_rdi_port = 0;
 	uint32_t                               in_port_length = 0;
+/* sony extension begin */
+	int                                    ipp_count = 0;
+	int                                    rdi_count = 0;
+	int                                    ppp_count = 0;
+	int                                    ife_rd_count = 0;
+	int                                    lcr_count = 0;
+	bool                                   rdi_only = false;
+/* sony extension end */
 
 	CAM_DBG(CAM_ISP, "Enter...");
 
@@ -2989,12 +3118,33 @@ static int cam_ife_mgr_acquire_dev(void *hw_mgr_priv, void *acquire_hw_args)
 			cam_ife_mgr_acquire_get_unified_dev_str(in_port,
 				gen_port_info);
 
+/* sony extension begin */
+			cam_ife_hw_mgr_preprocess_port(ife_ctx, gen_port_info,
+				&ipp_count, &rdi_count, &ppp_count, &ife_rd_count, &lcr_count);
+
+			if (!ipp_count && !rdi_count && !ppp_count) {
+				CAM_ERR(CAM_ISP, "No PIX or RDI or PPP resource");
+				return -EINVAL;
+			}
+
+			if (!ipp_count && rdi_count && !ppp_count) {
+				CAM_DBG(CAM_ISP, "RDI only");
+				rdi_only = true;
+			}
+/* sony extension end */
+
 			rc = cam_ife_mgr_acquire_hw_for_ctx(ife_ctx,
 				gen_port_info, &num_pix_port_per_in,
 				&num_rdi_port_per_in,
 				&acquire_args->acquired_hw_id[i],
+/* sony extension begin */
+#if 1
+				acquire_args->acquired_hw_path[i],
+				rdi_only);
+#else
 				acquire_args->acquired_hw_path[i]);
-
+#endif
+/* sony extension end */
 			total_pix_port += num_pix_port_per_in;
 			total_rdi_port += num_rdi_port_per_in;
 
@@ -6248,7 +6398,14 @@ static int cam_ife_hw_mgr_handle_hw_rup(
 	case CAM_ISP_HW_VFE_IN_RDI1:
 	case CAM_ISP_HW_VFE_IN_RDI2:
 	case CAM_ISP_HW_VFE_IN_RDI3:
+/* sony extension begin */
+#if 1
+		if (!ife_hw_mgr_ctx->is_rdi_only_context ||
+			ife_hw_mgr_ctx->int_rdi_res_id != event_info->res_id)
+#else
 		if (!ife_hw_mgr_ctx->is_rdi_only_context)
+#endif
+/* sony extension end */
 			break;
 		if (atomic_read(&ife_hw_mgr_ctx->overflow_pending))
 			break;
@@ -6407,7 +6564,14 @@ static int cam_ife_hw_mgr_handle_hw_sof(
 	case CAM_ISP_HW_VFE_IN_RDI1:
 	case CAM_ISP_HW_VFE_IN_RDI2:
 	case CAM_ISP_HW_VFE_IN_RDI3:
+/* sony extension begin */
+#if 1
+		if (!ife_hw_mgr_ctx->is_rdi_only_context ||
+			ife_hw_mgr_ctx->int_rdi_res_id != event_info->res_id)
+#else
 		if (!ife_hw_mgr_ctx->is_rdi_only_context)
+#endif
+/* sony extension end */
 			break;
 		cam_ife_mgr_cmd_get_sof_timestamp(ife_hw_mgr_ctx,
 			&sof_done_event_data.timestamp,
@@ -6683,7 +6847,13 @@ static int cam_ife_hw_mgr_debug_register(void)
 		goto err;
 	}
 
+/* sony extension begin */
+#if 0
+	g_ife_hw_mgr.debug_cfg.enable_recovery = 1;
+#else
 	g_ife_hw_mgr.debug_cfg.enable_recovery = 0;
+#endif
+/* sony extension end */
 
 	return 0;
 
