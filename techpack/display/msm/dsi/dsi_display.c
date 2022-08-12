@@ -23,6 +23,7 @@
 
 #ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
 #include "dsi_panel_driver.h"
+#include "sec_interface.h"
 #endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 
 #define to_dsi_display(x) container_of(x, struct dsi_display, host)
@@ -1081,12 +1082,18 @@ int dsi_display_set_power(struct drm_connector *connector,
 
 	switch (power_mode) {
 	case SDE_MODE_DPMS_LP1:
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+		sec_ts_lpmode_enable();
+#endif
 		rc = dsi_panel_set_lp1(display->panel);
 		break;
 	case SDE_MODE_DPMS_LP2:
 		rc = dsi_panel_set_lp2(display->panel);
 		break;
 	case SDE_MODE_DPMS_ON:
+#ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
+		sec_ts_lpmode_disable();
+#endif
 		if ((display->panel->power_mode == SDE_MODE_DPMS_LP1) ||
 			(display->panel->power_mode == SDE_MODE_DPMS_LP2))
 			rc = dsi_panel_set_nolp(display->panel);

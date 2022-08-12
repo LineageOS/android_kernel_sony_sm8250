@@ -17,6 +17,7 @@
 
 #ifdef CONFIG_DRM_SDE_SPECIFIC_PANEL
 #include "dsi_panel_driver.h"
+#include "sec_interface.h"
 #endif /* CONFIG_DRM_SDE_SPECIFIC_PANEL */
 
 /**
