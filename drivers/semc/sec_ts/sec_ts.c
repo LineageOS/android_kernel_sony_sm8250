@@ -1117,7 +1117,7 @@ static void sec_ts_read_event(struct sec_ts_data *ts)
 					if (ret)
 						input_err(true, &ts->client->dev, "%s: failed get power status\n", __func__);
 
-					if (!status.display_power) {
+					if (!status.display_power || ts->lowpower_mode) {
 						input_report_key(ts->input_dev, KEY_POWER, 1);
 						input_sync(ts->input_dev);
 						input_report_key(ts->input_dev, KEY_POWER, 0);
