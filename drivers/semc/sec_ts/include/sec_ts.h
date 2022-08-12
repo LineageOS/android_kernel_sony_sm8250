@@ -1061,6 +1061,8 @@ void sec_ts_reinit(struct sec_ts_data *ts);
 void sec_ts_set_irq(struct sec_ts_data *ts, bool enable);
 int set_report_rate(struct sec_ts_data *ts, int mode);
 
+struct sec_ts_data *get_sec_ts_data(void);
+
 #if (1)//!defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 
 int sec_ts_raw_device_init(struct sec_ts_data *ts);

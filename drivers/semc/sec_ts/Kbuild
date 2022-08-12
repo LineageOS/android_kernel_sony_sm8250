@@ -7,3 +7,4 @@ $(MODULE_NAME)-objs += sec_ts_fn.o
 $(MODULE_NAME)-objs += sec_ts_fw.o
 $(MODULE_NAME)-objs += sec_ts_only_vendor.o
 $(MODULE_NAME)-objs += sec_cmd.o
+$(MODULE_NAME)-objs += sec_ts_interface.o
