@@ -10,7 +10,8 @@
 #include "include/sec_ts.h"
 #include "linux/device.h"
 
-static void sec_ts_lowpowermode_set(int state) {
+static void sec_ts_lowpowermode_set(int state)
+{
 	struct sec_ts_data *ts = get_sec_ts_data();
 
 	if (!ts) {
@@ -20,12 +21,23 @@ static void sec_ts_lowpowermode_set(int state) {
 
 	mutex_lock(&ts->aod_mutex);
 
-	if (sec_ts_get_pw_status() || !ts->after_work.done || (ts->power_status == SEC_TS_STATE_POWER_OFF)) {
+	input_info(true, &ts->client->dev, "Current power status: %d\n",
+		   ts->power_status);
+
+	if (sec_ts_get_pw_status() || !ts->after_work.done ||
+	    (ts->power_status == SEC_TS_STATE_POWER_OFF)) {
 		ts->aod_pending = true;
 		ts->aod_pending_lowpower_mode = state;
 		input_info(true, &ts->client->dev,
-			"Postponing lowpower_mode: %d\n",
-			ts->aod_pending_lowpower_mode);
+			   "Postponing lowpower_mode: %d\n",
+			   ts->aod_pending_lowpower_mode);
+	} else if (ts->power_status == SEC_TS_STATE_LPM &&
+		   state == TO_LOWPOWER_MODE) {
+		ts->aod_pending = true;
+		ts->aod_pending_lowpower_mode = state;
+		input_info(true, &ts->client->dev,
+			   "Postponing lowpower_mode: %d\n",
+			   ts->aod_pending_lowpower_mode);
 	} else {
 		/* set lowpower mode by spay, edge_swipe function. */
 		ts->lowpower_mode = state;
@@ -37,13 +49,15 @@ exit:
 	return;
 }
 
-void sec_ts_lpmode_enable(void) {
+void sec_ts_lpmode_enable(void)
+{
 	sec_ts_lowpowermode_set(TO_LOWPOWER_MODE);
 	pr_info("Enabling lowpower mode by external interface\n");
 }
 EXPORT_SYMBOL(sec_ts_lpmode_enable);
 
-void sec_ts_lpmode_disable(void) {
+void sec_ts_lpmode_disable(void)
+{
 	sec_ts_lowpowermode_set(TO_TOUCH_MODE);
 	pr_info("Disabling lowpower mode by external interface\n");
 }
