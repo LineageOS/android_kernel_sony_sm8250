@@ -1023,9 +1023,6 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
 {
 	struct mmc_command *cmd = mrq->cmd;
 	int err = cmd->error;
-#ifdef CONFIG_MMC_PERF_PROFILING
-	ktime_t diff;
-#endif
 
 	if (host->clk_scaling.is_busy_started)
 		mmc_clk_scaling_stop_busy(host, true);
@@ -1080,40 +1077,9 @@ void mmc_request_done(struct mmc_host *host, struct mmc_request *mrq)
 			cmd->resp[2], cmd->resp[3]);
 
 		if (mrq->data) {
-#ifdef CONFIG_MMC_PERF_PROFILING
-			if (host->perf_enable) {
-				diff = ktime_sub(ktime_get(), host->perf.start);
-				if (mrq->data->flags == MMC_DATA_READ) {
-					host->perf.rbytes_drv +=
-							mrq->data->bytes_xfered;
-					host->perf.rtime_drv =
-						ktime_add(host->perf.rtime_drv,
-							diff);
-				} else {
-					host->perf.wbytes_drv +=
-						mrq->data->bytes_xfered;
-					host->perf.wtime_drv =
-						ktime_add(host->perf.wtime_drv,
-							diff);
-				}
-			}
-#endif
 			pr_debug("%s:     %d bytes transferred: %d\n",
 				mmc_hostname(host),
 				mrq->data->bytes_xfered, mrq->data->error);
-#ifdef CONFIG_BLOCK
-			if (mrq->lat_hist_enabled) {
-				ktime_t completion;
-				u_int64_t delta_us;
-
-				completion = ktime_get();
-				delta_us = ktime_us_delta(completion,
-							  mrq->io_start);
-				blk_update_latency_hist(&host->io_lat_s,
-					(mrq->data->flags & MMC_DATA_READ),
-					delta_us);
-			}
-#endif
 		}
 
 		if (mrq->stop) {
@@ -1247,10 +1213,6 @@ static int mmc_mrq_prep(struct mmc_host *host, struct mmc_request *mrq)
 			mrq->stop->error = 0;
 			mrq->stop->mrq = mrq;
 		}
-#ifdef CONFIG_MMC_PERF_PROFILING
-		if (host->perf_enable)
-			host->perf.start = ktime_get();
-#endif
 	}
 
 	return 0;
@@ -1267,31 +1229,6 @@ int mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 	if (mmc_card_removed(host->card))
 		return -ENOMEDIUM;
 
-#ifdef CONFIG_MMC_CMD_DEBUG
-	if (host->card) {
-		struct mmc_cmdq *cq = NULL;
-		cq = &host->card->cmd_stats.cmdq[host->card->
-						cmd_stats.next_idx];
-		cq->opcode = mrq->cmd->opcode;
-		cq->arg = mrq->cmd->arg;
-		cq->flags = mrq->cmd->flags;
-		cq->timestamp = sched_clock();
-		host->card->cmd_stats.next_idx++;
-
-		if (host->card->cmd_stats.next_idx == CMD_QUEUE_SIZE) {
-			host->card->cmd_stats.next_idx = 0;
-			host->card->cmd_stats.wrapped = 1;
-		}
-	}
-#endif
-
-#ifdef CONFIG_BLOCK
-		if (host->latency_hist_enabled) {
-			mrq->io_start = ktime_get();
-			mrq->lat_hist_enabled = 1;
-		} else
-			mrq->lat_hist_enabled = 0;
-#endif
 	mmc_mrq_pr_debug(host, mrq, false);
 
 	WARN_ON(!host->claimed);
@@ -2553,10 +2490,7 @@ int mmc_set_uhs_voltage(struct mmc_host *host, u32 ocr)
 	}
 
 	/* Wait for at least 1 ms according to spec */
-	if (host->caps & MMC_CAP_NONREMOVABLE)
-		mmc_delay(1);
-	else
-		mmc_delay(40);
+	mmc_delay(1);
 
 	/*
 	 * Failure to switch is indicated by the card holding
@@ -3923,56 +3857,6 @@ static void __exit mmc_exit(void)
 	mmc_unregister_host_class();
 	mmc_unregister_bus();
 }
-
-#ifdef CONFIG_BLOCK
-static ssize_t
-latency_hist_show(struct device *dev, struct device_attribute *attr, char *buf)
-{
-	struct mmc_host *host = cls_dev_to_mmc_host(dev);
-
-	return blk_latency_hist_show(&host->io_lat_s, buf);
-}
-
-/*
- * Values permitted 0, 1, 2.
- * 0 -> Disable IO latency histograms (default)
- * 1 -> Enable IO latency histograms
- * 2 -> Zero out IO latency histograms
- */
-static ssize_t
-latency_hist_store(struct device *dev, struct device_attribute *attr,
-		   const char *buf, size_t count)
-{
-	struct mmc_host *host = cls_dev_to_mmc_host(dev);
-	long value;
-
-	if (kstrtol(buf, 0, &value))
-		return -EINVAL;
-	if (value == BLK_IO_LAT_HIST_ZERO)
-		blk_zero_latency_hist(&host->io_lat_s);
-	else if (value == BLK_IO_LAT_HIST_ENABLE ||
-		 value == BLK_IO_LAT_HIST_DISABLE)
-		host->latency_hist_enabled = value;
-	return count;
-}
-
-static DEVICE_ATTR(latency_hist, S_IRUGO | S_IWUSR,
-		   latency_hist_show, latency_hist_store);
-
-void
-mmc_latency_hist_sysfs_init(struct mmc_host *host)
-{
-	if (device_create_file(&host->class_dev, &dev_attr_latency_hist))
-		dev_err(&host->class_dev,
-			"Failed to create latency_hist sysfs entry\n");
-}
-
-void
-mmc_latency_hist_sysfs_exit(struct mmc_host *host)
-{
-	device_remove_file(&host->class_dev, &dev_attr_latency_hist);
-}
-#endif
 
 subsys_initcall(mmc_init);
 module_exit(mmc_exit);

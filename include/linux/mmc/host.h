@@ -619,18 +619,6 @@ struct mmc_host {
 	struct extcon_dev	*extcon;
 	struct notifier_block card_detect_nb;
 
-#ifdef CONFIG_MMC_PERF_PROFILING
-	struct {
-
-		unsigned long rbytes_drv;  /* Rd bytes MMC Host  */
-		unsigned long wbytes_drv;  /* Wr bytes MMC Host  */
-		ktime_t rtime_drv;	   /* Rd time  MMC Host  */
-		ktime_t wtime_drv;	   /* Wr time  MMC Host  */
-		ktime_t start;
-	} perf;
-	bool perf_enable;
-#endif
-
 #ifdef CONFIG_MMC_IPC_LOGGING
 	void *ipc_log_ctxt;
 	bool stop_tracing;
