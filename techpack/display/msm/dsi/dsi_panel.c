@@ -4333,6 +4333,7 @@ exit:
 int dsi_panel_set_nolp(struct dsi_panel *panel)
 {
 	int rc = 0;
+	int bl_lvl = 0;
 
 	if (!panel) {
 		DSI_ERR("invalid params\n");
@@ -4360,6 +4361,12 @@ int dsi_panel_set_nolp(struct dsi_panel *panel)
 		panel->spec_pdata->aod_mode = 0;
 		pr_notice("%s: set AOD mode OFF\n", __func__);
 	}
+
+	// Force setting a valid brightness level
+	bl_lvl = dsi_panel_get_backlight(panel);
+	pr_notice("%s: Force setting a dsi panel brightness to %d", __func__,
+		  bl_lvl);
+	dsi_panel_set_backlight(panel, bl_lvl);
 #else
 	if (rc)
 		DSI_ERR("[%s] failed to send DSI_CMD_SET_NOLP cmd, rc=%d\n",
