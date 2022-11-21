@@ -11,6 +11,8 @@
 
 #include <asm/cacheflush.h>
 
+#include <linux/random.h>
+
 #define TZ_SVC_CRYPTO	10
 #define PRNG_CMD_ID	0x01
 
@@ -48,8 +50,7 @@ void __init init_random_pool(void)
 						RANDOM_BUFFER_SIZE);
 		bytes_received = (bytes_received <= RANDOM_BUFFER_SIZE) ?
 					bytes_received : RANDOM_BUFFER_SIZE;
-		add_hwgenerator_randomness(random_buffer, bytes_received,
-					   bytes_received << 3);
+		add_bootloader_randomness(random_buffer, bytes_received);
 	}
 }
 
