@@ -136,6 +136,11 @@ typedef enum {
   WLAN_MODULE_OEM6,                     /* 0x62 */
   WLAN_MODULE_OEM7,                     /* 0x63 */
 
+  WLAN_MODULE_T2LM,                     /* 0x64 */
+  WLAN_MODULE_HEALTH_MON,               /* 0x65 */
+  WLAN_MODULE_XGAP,                     /* 0x66 */
+
+
   WLAN_MODULE_ID_MAX,
   WLAN_MODULE_ID_INVALID = WLAN_MODULE_ID_MAX,
 } WLAN_MODULE_ID;
