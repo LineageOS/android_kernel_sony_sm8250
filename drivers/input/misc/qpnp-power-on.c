@@ -651,16 +651,17 @@ int qpnp_pon_system_pwr_off(enum pon_power_off_type type)
 	union power_supply_propval val;
 	unsigned long flags;
 	int rc;
-	struct device *dev = pon->dev;
 	if (!sys_reset_dev)
 		return -ENODEV;
 
+	printk("BBN: 1");
 	rc = qpnp_pon_reset_config(sys_reset_dev, type);
 	if (rc) {
 		dev_err(sys_reset_dev->dev, "Error configuring main PON, rc=%d\n",
 			rc);
 		return rc;
 	}
+	printk("BBN: 2");
 
 	/*
 	 * Check if a secondary PON device needs to be configured. If it
@@ -670,10 +671,11 @@ int qpnp_pon_system_pwr_off(enum pon_power_off_type type)
 	spin_lock_irqsave(&spon_list_slock, flags);
 	if (list_empty(&spon_dev_list))
 		goto out;
+	printk("BBN: 3");
 
 	list_for_each_entry_safe(pon, tmp, &spon_dev_list, list) {
 		dev_emerg(pon->dev, "PMIC@SID%d: configuring PON for reset\n",
-			  to_spmi_device(dev->parent)->usid);
+			  to_spmi_device(pon->dev->parent)->usid);
 		rc = qpnp_pon_reset_config(pon, type);
 		if (rc) {
 			dev_err(pon->dev, "Error configuring secondary PON, rc=%d\n",
@@ -689,6 +691,7 @@ int qpnp_pon_system_pwr_off(enum pon_power_off_type type)
 			}
 		}
 	}
+	printk("BBN: 4");
 
 out:
 	spin_unlock_irqrestore(&spon_list_slock, flags);
