@@ -651,7 +651,6 @@ int qpnp_pon_system_pwr_off(enum pon_power_off_type type)
 	union power_supply_propval val;
 	unsigned long flags;
 	int rc;
-	struct device *dev = pon->dev;
 	if (!sys_reset_dev)
 		return -ENODEV;
 
@@ -673,7 +672,7 @@ int qpnp_pon_system_pwr_off(enum pon_power_off_type type)
 
 	list_for_each_entry_safe(pon, tmp, &spon_dev_list, list) {
 		dev_emerg(pon->dev, "PMIC@SID%d: configuring PON for reset\n",
-			  to_spmi_device(dev->parent)->usid);
+			  to_spmi_device(pon->dev->parent)->usid);
 		rc = qpnp_pon_reset_config(pon, type);
 		if (rc) {
 			dev_err(pon->dev, "Error configuring secondary PON, rc=%d\n",
