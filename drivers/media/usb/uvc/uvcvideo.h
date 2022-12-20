@@ -585,6 +585,15 @@ struct uvc_streaming {
 
 		spinlock_t lock;
 	} clock;
+
+	/* Maximum number of URBs that can be submitted */
+	u32 max_urb;
+
+	/* Maximum number of packets per URB */
+	u32 max_urb_packets;
+
+	/*set if stream in progress */
+	u8 refcnt;
 };
 
 struct uvc_device {

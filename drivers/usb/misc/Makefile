@@ -35,3 +35,4 @@ obj-$(CONFIG_USB_SOMC_SLG4R41505)	+= slg4r41505.o
 
 obj-$(CONFIG_USB_QTI_KS_BRIDGE)		+= ks_bridge.o
 obj-$(CONFIG_USB_QCOM_DIAG_BRIDGE)	+= diag_ipc_bridge.o
+obj-$(CONFIG_USB_VBUS_EXTCON_GENOA)	+= vbus-extcon-genoa.o

@@ -1696,6 +1696,8 @@ free_urb_buffer:
 
 	if (free_buffers)
 		uvc_free_urb_buffers(stream);
+
+	stream->refcnt--;
 }
 
 /*
