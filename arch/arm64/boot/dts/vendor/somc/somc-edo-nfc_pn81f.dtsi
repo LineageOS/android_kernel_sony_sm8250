@@ -11,6 +11,10 @@
  */
 
 &qupv3_se1_i2c {
+	nq@28 {
+		status = "disabled";
+	};
+
 	nfc@28 {
 		compatible = "nxp,pn553";
 		reg = <0x28>;
