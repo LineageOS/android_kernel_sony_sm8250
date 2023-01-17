@@ -4299,6 +4299,9 @@ int dsi_panel_set_lp1(struct dsi_panel *panel)
 		panel->spec_pdata->aod_mode = 1;
 		pr_notice("%s: set AOD mode ON\n", __func__);
 	}
+
+	// Set AOD Brightness value
+	dsi_panel_set_aod_change(panel, dsi_panel_get_backlight(panel));
 #else
 	if (rc)
 		DSI_ERR("[%s] failed to send DSI_CMD_SET_LP1 cmd, rc=%d\n",
