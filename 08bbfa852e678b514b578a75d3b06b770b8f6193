@@ -16,6 +16,23 @@
       "message": "eh misclick, sry.\nlooks good to me. please test and add verified +1.",
       "revId": "08bbfa852e678b514b578a75d3b06b770b8f6193",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d75242b6_c4acb21f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14962
+      },
+      "writtenOn": "2023-01-20T10:36:13Z",
+      "side": 1,
+      "message": "Confirmed to work on pdx206",
+      "revId": "08bbfa852e678b514b578a75d3b06b770b8f6193",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
