@@ -16,6 +16,23 @@
       "message": "this is a squashed merge",
       "revId": "4a89672919dbad876691dbe34878b21bd8833e7d",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c6ad1e6b_0000f5dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31578
+      },
+      "writtenOn": "2023-01-31T10:34:10Z",
+      "side": 1,
+      "message": "You can test using the repository here:\nhttps://github.com/hellobbn/android_kernel_sony_sm8250/commits/lineage-20",
+      "revId": "4a89672919dbad876691dbe34878b21bd8833e7d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
