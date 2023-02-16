@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "479615c7_ce7e5b86",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31578
+      },
+      "writtenOn": "2023-02-16T12:29:22Z",
+      "side": 1,
+      "message": "Test: https://github.com/hellobbn/android_kernel_sony_sm8250/commits/lineage-20",
+      "revId": "ca2c8ab9146858052605a8c75980f26ea7b96dfa",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
