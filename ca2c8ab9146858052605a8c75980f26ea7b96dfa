@@ -50,6 +50,23 @@
       "message": "I also run this for a week on pdx206.",
       "revId": "ca2c8ab9146858052605a8c75980f26ea7b96dfa",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "481139c7_e1d50547",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31578
+      },
+      "writtenOn": "2023-02-24T13:27:59Z",
+      "side": 1,
+      "message": "Verified to work on pdx203",
+      "revId": "ca2c8ab9146858052605a8c75980f26ea7b96dfa",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
