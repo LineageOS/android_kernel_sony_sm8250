@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e506ecb_2127d924",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31578
+      },
+      "writtenOn": "2023-02-25T04:11:01Z",
+      "side": 1,
+      "message": "This chain basically re-applies those patches from LA.UM.9.12.r1.\nThey are not present in our kernel, maybe sony reverted them?\n\nMerging this chain allows us to merge https://review.lineageos.org/c/LineageOS/android_kernel_sony_sm8250/+/349909",
+      "revId": "c32032473e223c1fb5f95cec22684c1195ca8030",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
