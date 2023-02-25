@@ -16,6 +16,23 @@
       "message": "https://github.com/hellobbn/android_kernel_sony_sm8250",
       "revId": "2f702e88eea5ba14a783e345a1370812262530a0",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "945f2a21_99c2db33",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14962
+      },
+      "writtenOn": "2023-02-25T07:25:46Z",
+      "side": 1,
+      "message": "I will try this chain on pdx206.",
+      "revId": "2f702e88eea5ba14a783e345a1370812262530a0",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
