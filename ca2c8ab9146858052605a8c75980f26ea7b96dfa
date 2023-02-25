@@ -67,6 +67,23 @@
       "message": "Verified to work on pdx203",
       "revId": "ca2c8ab9146858052605a8c75980f26ea7b96dfa",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35f5f3bf_59d4971e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14962
+      },
+      "writtenOn": "2023-02-25T00:22:21Z",
+      "side": 1,
+      "message": "Verified on pdx206",
+      "revId": "ca2c8ab9146858052605a8c75980f26ea7b96dfa",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
