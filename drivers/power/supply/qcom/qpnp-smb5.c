@@ -2287,7 +2287,6 @@ static int smb5_init_batt_psy(struct smb5 *chip)
  ***********************************/
 
 static enum power_supply_property smb5_batt_ext_props[] = {
-	POWER_SUPPLY_PROP_SMART_CHARGING_ACTIVATION,
 	POWER_SUPPLY_PROP_SMART_CHARGING_INTERRUPTION,
 	POWER_SUPPLY_PROP_SMART_CHARGING_STATUS,
 	POWER_SUPPLY_PROP_LRC_ENABLE,
@@ -2310,9 +2309,6 @@ static int smb5_batt_ext_get_prop(struct power_supply *psy,
 	int rc = 0;
 
 	switch (psp) {
-	case POWER_SUPPLY_PROP_SMART_CHARGING_ACTIVATION:
-		val->intval = chg->smart_charge_enabled;
-		break;
 	case POWER_SUPPLY_PROP_SMART_CHARGING_INTERRUPTION:
 	case POWER_SUPPLY_PROP_SMART_CHARGING_STATUS:
 		val->intval = chg->smart_charge_suspended;
@@ -2366,18 +2362,10 @@ static int smb5_batt_ext_set_prop(struct power_supply *psy,
 	int rc = 0;
 
 	switch (psp) {
-	case POWER_SUPPLY_PROP_SMART_CHARGING_ACTIVATION:
-		if (val->intval) {
-			pr_debug("Smart Charging was activated.\n");
-			chg->smart_charge_enabled = true;
-		}
-		break;
 	case POWER_SUPPLY_PROP_SMART_CHARGING_INTERRUPTION:
-		if (chg->smart_charge_enabled) {
-			chg->smart_charge_suspended = (bool)val->intval;
-			rc = smblib_somc_smart_set_suspend(chg);
-			power_supply_changed(chg->batt_psy);
-		}
+		chg->smart_charge_suspended = (bool)val->intval;
+		rc = smblib_somc_smart_set_suspend(chg);
+		power_supply_changed(chg->batt_psy);
 		break;
 	case POWER_SUPPLY_PROP_LRC_ENABLE:
 		chg->lrc_enabled = val->intval;
@@ -2425,7 +2413,6 @@ static int smb5_batt_ext_prop_is_writeable(struct power_supply *psy,
 		enum power_supply_property psp)
 {
 	switch (psp) {
-	case POWER_SUPPLY_PROP_SMART_CHARGING_ACTIVATION:
 	case POWER_SUPPLY_PROP_SMART_CHARGING_INTERRUPTION:
 	case POWER_SUPPLY_PROP_LRC_ENABLE:
 	case POWER_SUPPLY_PROP_LRC_SOCMAX:

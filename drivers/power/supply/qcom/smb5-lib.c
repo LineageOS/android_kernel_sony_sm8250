@@ -9665,11 +9665,6 @@ int smblib_somc_smart_set_suspend(struct smb_charger *chg)
 {
 	int rc = 0;
 
-	if (!chg->smart_charge_enabled) {
-		pr_err("Couldn't set smart charge voter due to unactivated\n");
-		goto exit;
-	}
-
 	if (chg->smart_charge_suspended)
 		start_fake_charging(chg, BATTCHG_SMART_EN_VOTER);
 	else

@@ -707,7 +707,6 @@ struct smb_charger {
 	bool			profile_fv_rb_en;
 
 	/* smart charge */
-	bool			smart_charge_enabled;
 	bool			smart_charge_suspended;
 	struct delayed_work	smart_charge_wdog_work;
 	struct mutex		smart_charge_lock;
