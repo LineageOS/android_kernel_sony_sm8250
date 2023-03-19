@@ -64,7 +64,7 @@ static int cam_eeprom_read_memory(struct cam_eeprom_ctrl_t *e_ctrl,
 			i2c_reg_array.delay = emap[j].page.delay;
 			i2c_reg_settings.reg_setting = &i2c_reg_array;
 			rc = camera_io_dev_write(&e_ctrl->io_master_info,
-				&i2c_reg_settings);
+				&i2c_reg_settings, false);
 			if (rc) {
 				CAM_ERR(CAM_EEPROM, "page write failed rc %d",
 					rc);
@@ -81,7 +81,7 @@ static int cam_eeprom_read_memory(struct cam_eeprom_ctrl_t *e_ctrl,
 			i2c_reg_array.delay = emap[j].pageen.delay;
 			i2c_reg_settings.reg_setting = &i2c_reg_array;
 			rc = camera_io_dev_write(&e_ctrl->io_master_info,
-				&i2c_reg_settings);
+				&i2c_reg_settings, false);
 			if (rc) {
 				CAM_ERR(CAM_EEPROM, "page enable failed rc %d",
 					rc);
@@ -125,7 +125,7 @@ static int cam_eeprom_read_memory(struct cam_eeprom_ctrl_t *e_ctrl,
 			i2c_reg_array.delay = emap[j].pageen.delay;
 			i2c_reg_settings.reg_setting = &i2c_reg_array;
 			rc = camera_io_dev_write(&e_ctrl->io_master_info,
-				&i2c_reg_settings);
+				&i2c_reg_settings, false);
 			if (rc) {
 				CAM_ERR(CAM_EEPROM,
 					"page disable failed rc %d",
@@ -1158,7 +1158,7 @@ static int32_t cam_eeprom_write(struct cam_eeprom_ctrl_t *e_ctrl)
 			&(i2c_set->list_head), list) {
 			rc = camera_io_dev_write_continuous(
 				&e_ctrl->io_master_info,
-				&i2c_list->i2c_settings, 1);
+				&i2c_list->i2c_settings, 1, false);
 		if (rc < 0) {
 			CAM_ERR(CAM_EEPROM,
 				"Error in EEPROM write");
