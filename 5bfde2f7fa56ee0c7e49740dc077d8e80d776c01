@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ecab497_e79ba2d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31578
+      },
+      "writtenOn": "2024-10-28T12:37:53Z",
+      "side": 1,
+      "message": "Can you cherry-pick commit e978b1efa5669c8ad7d0dffab9ec5bda873c3c5d before merging this so that the conflict in drivers/gpu/msm can be fixed?\n\n```\ncommit e978b1efa5669c8ad7d0dffab9ec5bda873c3c5d\nAuthor: Rohan Sethi \u003cquic_rohsethi@quicinc.com\u003e\nDate:   Tue Dec 7 12:50:34 2021 +0530\n\n    msm: kgsl: Fix gpuaddr_in_range() to check upper bound\n    \n    Currently gpuaddr_in_range() accepts only the gpuaddr \u0026 returns\n    true if it lies in valid range. But this does not mean that the\n    entire buffer is within range.\n    Modify the function to accept size as a parameter and check that\n    both starting \u0026 ending points of buffer lie within mmu range.\n    \n    Change-Id: I1d722295b9a27e746bfdb6d3bf409ffe722193cb\n    Signed-off-by: Rohan Sethi \u003cquic_rohsethi@quicinc.com\u003e\n```",
+      "revId": "5bfde2f7fa56ee0c7e49740dc077d8e80d776c01",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
