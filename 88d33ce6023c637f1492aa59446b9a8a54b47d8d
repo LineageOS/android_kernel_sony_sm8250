@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b694e41_a3794bbf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4550
+      },
+      "writtenOn": "2024-11-06T08:17:16Z",
+      "side": 1,
+      "message": "FYI this commit is a fix for CVE-2024-38415 from November 2024 ASB",
+      "revId": "88d33ce6023c637f1492aa59446b9a8a54b47d8d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
