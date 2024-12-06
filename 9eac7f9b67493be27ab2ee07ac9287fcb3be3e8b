@@ -68,6 +68,24 @@
       "message": "fix: https://review.lineageos.org/c/LineageOS/android_kernel_motorola_sm8250/+/410906",
       "revId": "9eac7f9b67493be27ab2ee07ac9287fcb3be3e8b",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b465188_21dfa1f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31578
+      },
+      "writtenOn": "2024-12-06T08:54:51Z",
+      "side": 1,
+      "message": "cool! thanks for investigating the problem!",
+      "parentUuid": "dd33d6fb_bf9d990e",
+      "revId": "9eac7f9b67493be27ab2ee07ac9287fcb3be3e8b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ],
   "submitRequirementResults": []
