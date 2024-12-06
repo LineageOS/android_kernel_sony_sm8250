@@ -51,6 +51,23 @@
       "message": "I\u0027m experiencing the same issue on nio. A cvp instance is started every time switching camera but not destroyed on closing, and finally reaches max instance limitation here https://github.com/LineageOS/android_kernel_qcom_sm8250/blob/c8bfb910675d6b9556dc67110b105649e959ae98/drivers/media/platform/msm/cvp/msm_cvp_core.c#L273\n\nthe instance should be destroyed by msm_cvp_destroy, but the function seems not even invoked at all for some reason",
       "revId": "9eac7f9b67493be27ab2ee07ac9287fcb3be3e8b",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd33d6fb_bf9d990e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10258
+      },
+      "writtenOn": "2024-12-06T08:48:43Z",
+      "side": 1,
+      "message": "fix: https://review.lineageos.org/c/LineageOS/android_kernel_motorola_sm8250/+/410906",
+      "revId": "9eac7f9b67493be27ab2ee07ac9287fcb3be3e8b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ],
   "submitRequirementResults": []
