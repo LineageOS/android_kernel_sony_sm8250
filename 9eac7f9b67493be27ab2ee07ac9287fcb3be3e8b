@@ -86,6 +86,24 @@
       "parentUuid": "dd33d6fb_bf9d990e",
       "revId": "9eac7f9b67493be27ab2ee07ac9287fcb3be3e8b",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c0415e54_c03bb261",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14962
+      },
+      "writtenOn": "2024-12-07T00:23:50Z",
+      "side": 1,
+      "message": "thanks. this fix works on our devices as well.",
+      "parentUuid": "2b465188_21dfa1f7",
+      "revId": "9eac7f9b67493be27ab2ee07ac9287fcb3be3e8b",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ],
   "submitRequirementResults": []
