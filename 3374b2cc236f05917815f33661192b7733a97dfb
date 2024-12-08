@@ -16,6 +16,24 @@
       "message": "Upload to qcom_sm8250",
       "revId": "3374b2cc236f05917815f33661192b7733a97dfb",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77b6f6ca_bd01b843",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14962
+      },
+      "writtenOn": "2024-12-08T04:55:40Z",
+      "side": 1,
+      "message": "I think it would be better if the author uploaded it.",
+      "parentUuid": "2ec21391_f41d395f",
+      "revId": "3374b2cc236f05917815f33661192b7733a97dfb",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
     }
   ]
 }
