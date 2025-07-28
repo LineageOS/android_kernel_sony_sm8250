@@ -600,7 +600,7 @@ static void tcs3490_get_als_setup_next(struct tcs3490_chip *chip)
 			chip->als_channel = 0x00;
 			mutex_unlock(&chip->lock);
 		}
-		chip->als_inf.timestamp = ktime_get_boot_ns();
+		chip->als_inf.timestamp = ktime_get_boottime_ns();
 		dev_dbg(&chip->client->dev,
 			"%s: Changed channel from RGBC-IR to 0x%x Time %llu\n",
 			__func__, chip->als_channel, chip->als_inf.timestamp);
@@ -624,7 +624,7 @@ static void tcs3490_get_als_setup_next(struct tcs3490_chip *chip)
 		chip->als_inf.blue_raw  =
 			le16_to_cpup((const __le16 *)&buf[6]);
 		mutex_unlock(&chip->lock);
-		chip->als_inf.timestamp = ktime_get_boot_ns();
+		chip->als_inf.timestamp = ktime_get_boottime_ns();
 	}
 
 	sat = min_t(uint32_t, MAX_ALS_VALUE,
