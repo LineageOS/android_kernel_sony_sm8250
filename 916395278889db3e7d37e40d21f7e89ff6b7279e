@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6ff6d16_fab9c61c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 14962
+      },
+      "writtenOn": "2025-09-07T04:54:32Z",
+      "side": 1,
+      "message": "See https://review.lineageos.org/c/LineageOS/android_kernel_sony_sm8250/+/450297",
+      "revId": "916395278889db3e7d37e40d21f7e89ff6b7279e",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
