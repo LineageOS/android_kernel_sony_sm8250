@@ -10,6 +10,7 @@
 #include <linux/mount.h>
 #include <linux/init.h>
 #include <linux/page-flags.h>
+#include <linux/pseudo_fs.h>
 #include <linux/slab.h>
 #include <linux/swap.h>
 #include <linux/sched/signal.h>
@@ -339,20 +340,23 @@ static void ion_page_pool_putback(struct page *page)
 	 */
 }
 
-static struct dentry *ion_pool_do_mount(struct file_system_type *fs_type,
-				int flags, const char *dev_name, void *data)
+static int ion_pool_init_fs_context(struct fs_context *fc)
 {
 	static const struct dentry_operations ops = {
 		.d_dname = simple_dname,
 	};
 
-	return mount_pseudo(fs_type, "ion_pool:", NULL, &ops, 0x77);
+	struct pseudo_fs_context *ctx = init_pseudo(fc, 0x77);
+	if (!ctx)
+		return -ENOMEM;
+	ctx->dops = &ops;
+	return 0;
 }
 
 static struct file_system_type ion_pool_fs = {
-	.name		= "ion_pool",
-	.mount		= ion_pool_do_mount,
-	.kill_sb	= kill_anon_super,
+	.name			= "ion_pool",
+	.init_fs_context	= ion_pool_init_fs_context,
+	.kill_sb		= kill_anon_super,
 };
 
 static int ion_pool_cnt;
