@@ -41,4 +41,4 @@ obj-$(CONFIG_RADIO_IRIS_TRANSPORT) += radio-iris-transport.o
 
 shark2-objs := radio-shark2.o radio-tea5777.o
 
-ccflags-y += -Isound
+ccflags-y += -I $(srctree)/sound
