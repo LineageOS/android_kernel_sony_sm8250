@@ -612,7 +612,7 @@ free_req:
 	}
 }
 
-static void hidg_ssreport_complete(struct usb_ep *ep, struct usb_request *req)
+__attribute__((unused)) static void hidg_ssreport_complete(struct usb_ep *ep, struct usb_request *req)
 {
 	struct f_hidg *hidg = (struct f_hidg *)req->context;
 	struct usb_composite_dev *cdev = hidg->func.config->cdev;
