@@ -44,7 +44,6 @@ static void sec_ts_lowpowermode_set(int state)
 		sec_ts_set_lowpowermode(ts, ts->lowpower_mode);
 	}
 
-exit:
 	mutex_unlock(&ts->aod_mutex);
 	return;
 }
