@@ -9,4 +9,5 @@ obj-y				+= sony_camera/
 obj-y				+= slg51000_regulator/
 obj-y				+= powerkey_forcecrash/
 obj-y				+= pn553/
+obj-y				+= p73/
 header-y			+= include/
