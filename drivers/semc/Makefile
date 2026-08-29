@@ -10,4 +10,5 @@ obj-y				+= slg51000_regulator/
 obj-y				+= powerkey_forcecrash/
 obj-y				+= pn553/
 obj-y				+= p73/
+obj-y				+= cloned_spi_kona_controller/
 header-y			+= include/
