@@ -2,5 +2,5 @@ menu "SOMC settings"
 
 source "drivers/semc/pn553/Kconfig"
 source "drivers/semc/p73/Kconfig"
-
+source "drivers/semc/cloned_spi_kona_controller/Kconfig"
 endmenu
